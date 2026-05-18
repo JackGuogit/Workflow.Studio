@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/ThirdLib/">
+    <Project Path="Workflow.Studio.Nodify/Workflow.Studio.Nodify.csproj" />
+    <Project Path="Workflow.Studio.Theme/Workflow.Studio.Theme.csproj" />
+  </Folder>
+  <Project Path="Workflow.Studio.Core/Workflow.Studio.Core.csproj" />
+  <Project Path="Workflow.Studio.Desktop/Workflow.Studio.Desktop.csproj" />
+</Solution>
