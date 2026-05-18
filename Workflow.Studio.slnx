@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Documents/">
+    <File Path="工作流架构图.md" />
+    <File Path="总体架构.md" />
+  </Folder>
   <Folder Name="/ThirdLib/">
     <Project Path="Workflow.Studio.Nodify/Workflow.Studio.Nodify.csproj" />
     <Project Path="Workflow.Studio.Theme/Workflow.Studio.Theme.csproj" />
