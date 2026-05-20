@@ -9,11 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-    <PackageReference Include="Nodify" Version="7.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Workflow.Studio.Core\Workflow.Studio.Core.csproj" />
+    <ProjectReference Include="..\Workflow.Studio.Nodify\Workflow.Studio.Nodify.csproj" />
   </ItemGroup>
 
 </Project>
