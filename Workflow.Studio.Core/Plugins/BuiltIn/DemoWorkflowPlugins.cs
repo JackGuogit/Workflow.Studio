@@ -1,25 +1,39 @@
 using Workflow.Studio.Core.Models;
-using Workflow.Studio.Core.Nodes.BuiltIn;
 
 namespace Workflow.Studio.Core.Plugins.BuiltIn;
 
-public sealed class UppercaseTransformPlugin : IWorkflowPlugin
+public interface ITextTransformPlugin
+{
+    ValueTask<string> TransformToUppercaseAsync(string input, CancellationToken cancellationToken);
+}
+
+public interface IPreviewPlugin
+{
+    ValueTask<string> BuildPreviewAsync(string input, CancellationToken cancellationToken);
+}
+
+public sealed class UppercaseTransformPlugin : IWorkflowPlugin, ITextTransformPlugin
 {
     public PluginMetadata Metadata { get; } = new()
     {
         Id = "demo.uppercase-transform",
         Name = "Text Transform Extension",
-        Description = "为工作流平台注册文本转换相关节点。",
+        Description = "提供文本大写转换能力，供节点执行阶段调用。",
         Publisher = "Workflow Studio",
-        Capabilities = ["NodeRegistration", "TextTransform"]
+        Capabilities = ["TextTransform"]
     };
 
     public ValueTask InitializeAsync(
         PluginInitializationContext context,
         CancellationToken cancellationToken)
     {
-        context.NodeManager.RegisterType(new UppercaseTransformNode());
         return ValueTask.CompletedTask;
+    }
+
+    public ValueTask<string> TransformToUppercaseAsync(string input, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return ValueTask.FromResult(input.ToUpperInvariant());
     }
 
     public ValueTask DisposeAsync()
@@ -28,23 +42,28 @@ public sealed class UppercaseTransformPlugin : IWorkflowPlugin
     }
 }
 
-public sealed class PreviewPlugin : IWorkflowPlugin
+public sealed class PreviewPlugin : IWorkflowPlugin, IPreviewPlugin
 {
     public PluginMetadata Metadata { get; } = new()
     {
         Id = "demo.preview",
         Name = "Preview Extension",
-        Description = "为工作流平台注册预览输出相关节点。",
+        Description = "提供预览内容生成能力，供节点执行阶段调用。",
         Publisher = "Workflow Studio",
-        Capabilities = ["NodeRegistration", "Preview"]
+        Capabilities = ["Preview"]
     };
 
     public ValueTask InitializeAsync(
         PluginInitializationContext context,
         CancellationToken cancellationToken)
     {
-        context.NodeManager.RegisterType(new PreviewNode());
         return ValueTask.CompletedTask;
+    }
+
+    public ValueTask<string> BuildPreviewAsync(string input, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return ValueTask.FromResult(input);
     }
 
     public ValueTask DisposeAsync()

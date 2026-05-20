@@ -5,13 +5,7 @@ namespace Workflow.Studio.Core.Services;
 public sealed class PluginManager : IDisposable, IAsyncDisposable
 {
     private readonly Dictionary<string, IWorkflowPlugin> _plugins = new(StringComparer.OrdinalIgnoreCase);
-    private readonly NodeManager _nodeManager;
     private bool _initialized;
-
-    public PluginManager(NodeManager nodeManager)
-    {
-        _nodeManager = nodeManager;
-    }
 
     public IReadOnlyCollection<IWorkflowPlugin> Plugins => _plugins.Values;
 
@@ -34,7 +28,7 @@ public sealed class PluginManager : IDisposable, IAsyncDisposable
             return;
         }
 
-        var context = new PluginInitializationContext(_nodeManager);
+        var context = new PluginInitializationContext();
 
         foreach (var plugin in _plugins.Values)
         {

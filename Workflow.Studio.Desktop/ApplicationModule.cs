@@ -1,6 +1,7 @@
 using Autofac;
 using Workflow.Studio.Desktop.ViewModels;
 using Workflow.Studio.Core.Nodes.BuiltIn;
+using Workflow.Studio.Core.Plugins;
 using Workflow.Studio.Core.Plugins.BuiltIn;
 using Workflow.Studio.Core.Services;
 using Workflow.Studio.Workbench.ViewModels;
@@ -11,12 +12,25 @@ public sealed class ApplicationModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
+        builder.RegisterType<UppercaseTransformPlugin>()
+            .As<IWorkflowPlugin>()
+            .As<ITextTransformPlugin>()
+            .SingleInstance();
+
+        builder.RegisterType<PreviewPlugin>()
+            .As<IWorkflowPlugin>()
+            .As<IPreviewPlugin>()
+            .SingleInstance();
+
         builder.Register(_ =>
             {
-                var nodeManager = _.Resolve<NodeManager>();
-                var pluginManager = new PluginManager(nodeManager);
-                pluginManager.Register(new UppercaseTransformPlugin());
-                pluginManager.Register(new PreviewPlugin());
+                var pluginManager = new PluginManager();
+
+                foreach (var plugin in _.Resolve<IEnumerable<IWorkflowPlugin>>())
+                {
+                    pluginManager.Register(plugin);
+                }
+
                 pluginManager.InitializeAsync(CancellationToken.None).AsTask().GetAwaiter().GetResult();
                 return pluginManager;
             })
@@ -26,6 +40,8 @@ public sealed class ApplicationModule : Module
             {
                 var nodeManager = new NodeManager();
                 nodeManager.RegisterType(new TextSourceNode());
+                nodeManager.RegisterType(new UppercaseTransformNode(_.Resolve<ITextTransformPlugin>()));
+                nodeManager.RegisterType(new PreviewNode(_.Resolve<IPreviewPlugin>()));
                 return nodeManager;
             })
             .SingleInstance();
