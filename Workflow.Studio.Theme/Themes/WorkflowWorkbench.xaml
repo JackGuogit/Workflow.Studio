@@ -175,7 +175,9 @@
            TargetType="{x:Type studioNodify:Node}"
            BasedOn="{StaticResource {x:Type nodify:Node}}">
         <Setter Property="MinWidth"
-                Value="320" />
+                Value="200" />
+        <Setter Property="ContentPadding"
+                Value="6 4" />
     </Style>
 
     <Style x:Key="WorkflowWorkbench.NodeInputStyle"
@@ -185,6 +187,8 @@
                 Value="Transparent" />
         <Setter Property="BorderBrush"
                 Value="{StaticResource WorkflowWorkbench.PortInputBrush}" />
+        <Setter Property="Padding"
+                Value="2 2" />
         <Setter Property="ConnectorTemplate"
                 Value="{StaticResource WorkflowWorkbench.NodeConnectorTemplate}" />
     </Style>
@@ -196,6 +200,8 @@
                 Value="Transparent" />
         <Setter Property="BorderBrush"
                 Value="{StaticResource WorkflowWorkbench.PortOutputBrush}" />
+        <Setter Property="Padding"
+                Value="2 2" />
         <Setter Property="ConnectorTemplate"
                 Value="{StaticResource WorkflowWorkbench.NodeConnectorTemplate}" />
     </Style>

@@ -31,6 +31,18 @@
                         Value="{StaticResource WorkflowWorkbench.SubtleBackgroundBrush}" />
             </Style>
 
+            <Style x:Key="CanvasNodeIndicatorDotStyle"
+                   TargetType="Ellipse">
+                <Setter Property="Width"
+                        Value="6" />
+                <Setter Property="Height"
+                        Value="6" />
+                <Setter Property="Margin"
+                        Value="0 0 4 0" />
+                <Setter Property="Fill"
+                        Value="#D1D5DB" />
+            </Style>
+
             <DataTemplate x:Key="PortGroupChipTemplate"
                           DataType="{x:Type viewModels:PortGroupViewModel}">
                 <Border Style="{StaticResource WorkbenchPortGroupChipStyle}">
@@ -50,12 +62,12 @@
                 <DockPanel LastChildFill="True">
                     <Border x:Name="StatusBadge"
                             DockPanel.Dock="Right"
-                            Margin="12 0 0 0"
-                            Padding="10 4"
+                            Margin="8 0 0 0"
+                            Padding="8 3"
                             Background="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}"
                             CornerRadius="999">
                         <TextBlock x:Name="StatusTextBlock"
-                                   FontSize="11"
+                                   FontSize="10"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource WorkflowWorkbench.SecondaryAccentTextBrush}"
                                    Text="{Binding StatusText}" />
@@ -110,77 +122,112 @@
                 </DataTemplate.Triggers>
             </DataTemplate>
 
-            <DataTemplate x:Key="CanvasNodeHeaderTemplate"
+            <DataTemplate x:Key="CanvasNodeContentTemplate"
                           DataType="{x:Type viewModels:NodeViewModel}">
-                <Grid MinWidth="220">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Margin="0 0 12 0">
-                        <TextBlock FontSize="15"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
-                                   Text="{Binding Title}"
-                                   TextTrimming="CharacterEllipsis" />
-                        <TextBlock Margin="0 4 0 0"
-                                   Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
-                                   Text="{Binding Category}"
-                                   TextTrimming="CharacterEllipsis" />
-                        <TextBlock Margin="0 4 0 0"
-                                   FontSize="11"
-                                   Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
-                                   Text="{Binding PortSummary}" />
+                <Border x:Name="NodeGlyphContainer"
+                        Width="56"
+                        Height="56"
+                        Background="{StaticResource WorkflowWorkbench.AccentBrush}"
+                        CornerRadius="10">
+                    <Grid>
+                        <!-- TODO: replace with proper icon if available, using text for now -->
+                        <TextBlock x:Name="NodeGlyphText"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="White"
+                                   Text="N" />
+                    </Grid>
+                </Border>
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Category}"
+                                 Value="Source">
+                        <Setter TargetName="NodeGlyphContainer"
+                                Property="Background"
+                                Value="#FB923C" />
+                        <Setter TargetName="NodeGlyphText"
+                                Property="Text"
+                                Value="IN" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Category}"
+                                 Value="Transform">
+                        <Setter TargetName="NodeGlyphContainer"
+                                Property="Background"
+                                Value="#FACC15" />
+                        <Setter TargetName="NodeGlyphText"
+                                Property="Text"
+                                Value="FX" />
+                        <Setter TargetName="NodeGlyphText"
+                                Property="Foreground"
+                                Value="#111827" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Category}"
+                                 Value="Output">
+                        <Setter TargetName="NodeGlyphContainer"
+                                Property="Background"
+                                Value="#38BDF8" />
+                        <Setter TargetName="NodeGlyphText"
+                                Property="Text"
+                                Value="OUT" />
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+
+            <DataTemplate x:Key="CanvasNodeFooterTemplate"
+                          DataType="{x:Type viewModels:NodeViewModel}">
+                <Border Margin="0 4 0 0"
+                        Padding="8 4"
+                        HorizontalAlignment="Center"
+                        Background="{StaticResource WorkflowWorkbench.SubtleBackgroundBrush}"
+                        BorderBrush="{StaticResource WorkflowWorkbench.PanelBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Style="{StaticResource CanvasNodeIndicatorDotStyle}" />
+                        <Ellipse x:Name="NodeStateDot"
+                                 Style="{StaticResource CanvasNodeIndicatorDotStyle}" />
+                        <Ellipse x:Name="NodeOutputDot"
+                                 Margin="0"
+                                 Style="{StaticResource CanvasNodeIndicatorDotStyle}" />
                     </StackPanel>
-                    <Border x:Name="CompactStatusBadge"
-                            Grid.Column="1"
-                            Padding="10 4"
-                            VerticalAlignment="Top"
-                            Background="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}"
-                            CornerRadius="999">
-                        <TextBlock x:Name="CompactStatusTextBlock"
-                                   FontSize="11"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource WorkflowWorkbench.SecondaryAccentTextBrush}"
-                                   Text="{Binding StatusText}" />
-                    </Border>
-                </Grid>
+                </Border>
                 <DataTemplate.Triggers>
                     <DataTrigger Binding="{Binding Status}"
                                  Value="{x:Static models:NodeStatus.Ready}">
-                        <Setter TargetName="CompactStatusBadge"
-                                Property="Background"
+                        <Setter TargetName="NodeStateDot"
+                                Property="Fill"
                                 Value="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}" />
-                        <Setter TargetName="CompactStatusTextBlock"
-                                Property="Foreground"
-                                Value="{StaticResource WorkflowWorkbench.SecondaryAccentTextBrush}" />
+                        <Setter TargetName="NodeOutputDot"
+                                Property="Fill"
+                                Value="#D1D5DB" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}"
                                  Value="{x:Static models:NodeStatus.Running}">
-                        <Setter TargetName="CompactStatusBadge"
-                                Property="Background"
-                                Value="{StaticResource WorkflowWorkbench.WarningSoftBrush}" />
-                        <Setter TargetName="CompactStatusTextBlock"
-                                Property="Foreground"
+                        <Setter TargetName="NodeStateDot"
+                                Property="Fill"
                                 Value="{StaticResource WorkflowWorkbench.WarningBrush}" />
+                        <Setter TargetName="NodeOutputDot"
+                                Property="Fill"
+                                Value="{StaticResource WorkflowWorkbench.WarningSoftBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}"
                                  Value="{x:Static models:NodeStatus.Success}">
-                        <Setter TargetName="CompactStatusBadge"
-                                Property="Background"
-                                Value="{StaticResource WorkflowWorkbench.SuccessSoftBrush}" />
-                        <Setter TargetName="CompactStatusTextBlock"
-                                Property="Foreground"
+                        <Setter TargetName="NodeStateDot"
+                                Property="Fill"
                                 Value="{StaticResource WorkflowWorkbench.SuccessBrush}" />
+                        <Setter TargetName="NodeOutputDot"
+                                Property="Fill"
+                                Value="{StaticResource WorkflowWorkbench.SuccessSoftBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}"
                                  Value="{x:Static models:NodeStatus.Failed}">
-                        <Setter TargetName="CompactStatusBadge"
-                                Property="Background"
-                                Value="{StaticResource WorkflowWorkbench.ErrorSoftBrush}" />
-                        <Setter TargetName="CompactStatusTextBlock"
-                                Property="Foreground"
+                        <Setter TargetName="NodeStateDot"
+                                Property="Fill"
                                 Value="{StaticResource WorkflowWorkbench.ErrorBrush}" />
+                        <Setter TargetName="NodeOutputDot"
+                                Property="Fill"
+                                Value="{StaticResource WorkflowWorkbench.ErrorSoftBrush}" />
                     </DataTrigger>
                 </DataTemplate.Triggers>
             </DataTemplate>
@@ -211,35 +258,6 @@
                                Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
                                Text="{Binding PreviewText}"
                                TextWrapping="Wrap" />
-                </StackPanel>
-            </DataTemplate>
-
-            <DataTemplate x:Key="InputPortHeaderTemplate"
-                          DataType="{x:Type viewModels:PortViewModel}">
-                <StackPanel Margin="10 4 0 4">
-                    <TextBlock FontWeight="SemiBold"
-                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
-                               Text="{Binding Title}" />
-                    <TextBlock Margin="0 2 0 0"
-                               FontSize="11"
-                               Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
-                               Text="{Binding DataTypeName}" />
-                </StackPanel>
-            </DataTemplate>
-
-            <DataTemplate x:Key="OutputPortHeaderTemplate"
-                          DataType="{x:Type viewModels:PortViewModel}">
-                <StackPanel Margin="0 4 10 4"
-                            HorizontalAlignment="Right">
-                    <TextBlock FontWeight="SemiBold"
-                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
-                               Text="{Binding Title}"
-                               TextAlignment="Right" />
-                    <TextBlock Margin="0 2 0 0"
-                               FontSize="11"
-                               Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
-                               Text="{Binding DataTypeName}"
-                               TextAlignment="Right" />
                 </StackPanel>
             </DataTemplate>
 
@@ -461,8 +479,10 @@
                     <nodify:NodifyEditor.ItemTemplate>
                         <DataTemplate DataType="{x:Type viewModels:NodeViewModel}">
                             <nodify:Node Style="{StaticResource WorkflowWorkbench.NodeStyle}"
-                                         Header="{Binding}"
-                                         HeaderTemplate="{StaticResource CanvasNodeHeaderTemplate}"
+                                         Content="{Binding}"
+                                         ContentTemplate="{StaticResource CanvasNodeContentTemplate}"
+                                         Footer="{Binding}"
+                                         FooterTemplate="{StaticResource CanvasNodeFooterTemplate}"
                                          Input="{Binding InputPorts}"
                                          Output="{Binding OutputPorts}"
                                          ToolTipService.ShowDuration="60000">
@@ -474,8 +494,6 @@
                                 <nodify:Node.InputConnectorTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
                                         <nodify:NodeInput Style="{StaticResource WorkflowWorkbench.NodeInputStyle}"
-                                                          Header="{Binding}"
-                                                          HeaderTemplate="{StaticResource InputPortHeaderTemplate}"
                                                           Anchor="{Binding Anchor, Mode=OneWayToSource}"
                                                           IsConnected="{Binding IsConnected}"
                                                           ToolTip="{Binding DisplayValue}" />
@@ -485,8 +503,6 @@
                                 <nodify:Node.OutputConnectorTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
                                         <nodify:NodeOutput Style="{StaticResource WorkflowWorkbench.NodeOutputStyle}"
-                                                           Header="{Binding}"
-                                                           HeaderTemplate="{StaticResource OutputPortHeaderTemplate}"
                                                            Anchor="{Binding Anchor, Mode=OneWayToSource}"
                                                            IsConnected="{Binding IsConnected}"
                                                            ToolTip="{Binding DisplayValue}" />
