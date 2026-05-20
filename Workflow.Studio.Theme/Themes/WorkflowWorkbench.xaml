@@ -1,0 +1,285 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodify="https://miroiu.github.io/nodify"
+                    xmlns:studioNodify="clr-namespace:Workflow.Studio.Nodify;assembly=Workflow.Studio.Nodify">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/Generic.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/Nodify.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <Color x:Key="WorkflowWorkbench.PageBackgroundColor">#F3F4F6</Color>
+    <Color x:Key="WorkflowWorkbench.PanelBackgroundColor">#FFFFFF</Color>
+    <Color x:Key="WorkflowWorkbench.PanelBorderColor">#E5E7EB</Color>
+    <Color x:Key="WorkflowWorkbench.SubtleBackgroundColor">#F8FAFC</Color>
+    <Color x:Key="WorkflowWorkbench.CanvasOverlayColor">#0F172A</Color>
+    <Color x:Key="WorkflowWorkbench.CanvasTextColor">#E2E8F0</Color>
+    <Color x:Key="WorkflowWorkbench.TextColor">#111827</Color>
+    <Color x:Key="WorkflowWorkbench.SubtleTextColor">#64748B</Color>
+    <Color x:Key="WorkflowWorkbench.AccentColor">#6366F1</Color>
+    <Color x:Key="WorkflowWorkbench.AccentSoftColor">#EEF2FF</Color>
+    <Color x:Key="WorkflowWorkbench.SecondaryAccentColor">#E0F2FE</Color>
+    <Color x:Key="WorkflowWorkbench.SecondaryAccentTextColor">#0369A1</Color>
+    <Color x:Key="WorkflowWorkbench.SuccessColor">#16A34A</Color>
+    <Color x:Key="WorkflowWorkbench.SuccessSoftColor">#DCFCE7</Color>
+    <Color x:Key="WorkflowWorkbench.WarningColor">#D97706</Color>
+    <Color x:Key="WorkflowWorkbench.WarningSoftColor">#FEF3C7</Color>
+    <Color x:Key="WorkflowWorkbench.ErrorColor">#DC2626</Color>
+    <Color x:Key="WorkflowWorkbench.ErrorSoftColor">#FEE2E2</Color>
+    <Color x:Key="WorkflowWorkbench.GridColor">#334155</Color>
+    <Color x:Key="WorkflowWorkbench.PortInputColor">#818CF8</Color>
+    <Color x:Key="WorkflowWorkbench.PortOutputColor">#38BDF8</Color>
+
+    <SolidColorBrush x:Key="WorkflowWorkbench.PageBackgroundBrush"
+                     Color="{StaticResource WorkflowWorkbench.PageBackgroundColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.PanelBackgroundBrush"
+                     Color="{StaticResource WorkflowWorkbench.PanelBackgroundColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.PanelBorderBrush"
+                     Color="{StaticResource WorkflowWorkbench.PanelBorderColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.SubtleBackgroundBrush"
+                     Color="{StaticResource WorkflowWorkbench.SubtleBackgroundColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.CanvasOverlayBrush"
+                     Color="{StaticResource WorkflowWorkbench.CanvasOverlayColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.CanvasTextBrush"
+                     Color="{StaticResource WorkflowWorkbench.CanvasTextColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.TextBrush"
+                     Color="{StaticResource WorkflowWorkbench.TextColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.SubtleTextBrush"
+                     Color="{StaticResource WorkflowWorkbench.SubtleTextColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.AccentBrush"
+                     Color="{StaticResource WorkflowWorkbench.AccentColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.AccentSoftBrush"
+                     Color="{StaticResource WorkflowWorkbench.AccentSoftColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.SecondaryAccentBrush"
+                     Color="{StaticResource WorkflowWorkbench.SecondaryAccentColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.SecondaryAccentTextBrush"
+                     Color="{StaticResource WorkflowWorkbench.SecondaryAccentTextColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.SuccessBrush"
+                     Color="{StaticResource WorkflowWorkbench.SuccessColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.SuccessSoftBrush"
+                     Color="{StaticResource WorkflowWorkbench.SuccessSoftColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.WarningBrush"
+                     Color="{StaticResource WorkflowWorkbench.WarningColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.WarningSoftBrush"
+                     Color="{StaticResource WorkflowWorkbench.WarningSoftColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.ErrorBrush"
+                     Color="{StaticResource WorkflowWorkbench.ErrorColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.ErrorSoftBrush"
+                     Color="{StaticResource WorkflowWorkbench.ErrorSoftColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.PortInputBrush"
+                     Color="{StaticResource WorkflowWorkbench.PortInputColor}" />
+    <SolidColorBrush x:Key="WorkflowWorkbench.PortOutputBrush"
+                     Color="{StaticResource WorkflowWorkbench.PortOutputColor}" />
+    <SolidColorBrush x:Key="GridLinesBrush"
+                     Color="{StaticResource WorkflowWorkbench.GridColor}"
+                     Opacity="0.45" />
+
+    <Color x:Key="NodifyEditor.BackgroundColor">#0F172A</Color>
+    <Color x:Key="NodifyEditor.ForegroundColor">#E2E8F0</Color>
+    <Color x:Key="NodifyEditor.SelectionRectangleColor">#60A5FA</Color>
+    <Color x:Key="NodifyEditor.PushedAreaColor">#60A5FA</Color>
+    <Color x:Key="NodifyEditor.CuttingLineColor">#F8FAFC</Color>
+    <Color x:Key="ItemContainer.BorderColor">#93C5FD</Color>
+    <Color x:Key="ItemContainer.SelectedColor">#60A5FA</Color>
+    <Color x:Key="Node.BackgroundColor">#FFFFFF</Color>
+    <Color x:Key="Node.ContentColor">#F8FAFC</Color>
+    <Color x:Key="Node.ForegroundColor">#111827</Color>
+    <Color x:Key="Node.HeaderForegroundColor">#111827</Color>
+    <Color x:Key="Node.BorderColor">#CBD5E1</Color>
+    <Color x:Key="Node.HeaderColor">#FFFFFF</Color>
+    <Color x:Key="Node.FooterColor">#F8FAFC</Color>
+    <Color x:Key="Connector.BackgroundColor">#FFFFFF</Color>
+    <Color x:Key="Connector.ForegroundColor">#111827</Color>
+    <Color x:Key="Connector.BorderColor">#94A3B8</Color>
+    <Color x:Key="NodeInput.BackgroundColor">#FFFFFF</Color>
+    <Color x:Key="NodeInput.ForegroundColor">#111827</Color>
+    <Color x:Key="NodeInput.BorderColor">#818CF8</Color>
+    <Color x:Key="NodeOutput.BackgroundColor">#FFFFFF</Color>
+    <Color x:Key="NodeOutput.ForegroundColor">#111827</Color>
+    <Color x:Key="NodeOutput.BorderColor">#38BDF8</Color>
+    <Color x:Key="Connection.StrokeColor">#60A5FA</Color>
+    <Color x:Key="LineConnection.StrokeColor">#60A5FA</Color>
+    <Color x:Key="PendingConnection.StrokeColor">#93C5FD</Color>
+    <Color x:Key="PendingConnection.BorderColor">#BFDBFE</Color>
+    <Color x:Key="PendingConnection.ForegroundColor">#E2E8F0</Color>
+    <Color x:Key="PendingConnection.BackgroundColor">#1E293B</Color>
+
+    <GeometryDrawing x:Key="WorkflowWorkbench.SmallGridGeometry"
+                     Geometry="M0,0 L0,1 0.03,1 0.03,0.03 1,0.03 1,0 Z"
+                     Brush="{StaticResource GridLinesBrush}" />
+
+    <GeometryDrawing x:Key="WorkflowWorkbench.LargeGridGeometry"
+                     Geometry="M0,0 L0,1 0.015,1 0.015,0.015 1,0.015 1,0 Z"
+                     Brush="{StaticResource GridLinesBrush}" />
+
+    <DrawingBrush x:Key="WorkflowWorkbench.SmallGridBrush"
+                  TileMode="Tile"
+                  Viewport="0 0 24 24"
+                  ViewportUnits="Absolute"
+                  Drawing="{StaticResource WorkflowWorkbench.SmallGridGeometry}" />
+
+    <DrawingBrush x:Key="WorkflowWorkbench.LargeGridBrush"
+                  TileMode="Tile"
+                  Opacity="0.6"
+                  Viewport="0 0 120 120"
+                  ViewportUnits="Absolute"
+                  Drawing="{StaticResource WorkflowWorkbench.LargeGridGeometry}" />
+
+    <ControlTemplate x:Key="WorkflowWorkbench.NodeConnectorTemplate"
+                     TargetType="Control">
+        <Grid Width="14"
+              Height="14">
+            <Ellipse Fill="{TemplateBinding Background}"
+                     Stroke="{TemplateBinding BorderBrush}"
+                     StrokeThickness="2" />
+            <Ellipse Width="6"
+                     Height="6"
+                     Fill="{TemplateBinding BorderBrush}" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="WorkflowWorkbench.SelectionRectangleStyle"
+           TargetType="Rectangle"
+           BasedOn="{StaticResource NodifyEditor.SelectionRectangleStyle}">
+        <Setter Property="StrokeThickness"
+                Value="2" />
+        <Setter Property="StrokeDashArray"
+                Value="5 4" />
+        <Setter Property="RadiusX"
+                Value="12" />
+        <Setter Property="RadiusY"
+                Value="12" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.EditorStyle"
+           TargetType="{x:Type studioNodify:NodifyEditor}"
+           BasedOn="{StaticResource {x:Type nodify:NodifyEditor}}">
+        <Setter Property="Background"
+                Value="Transparent" />
+        <Setter Property="Foreground"
+                Value="{StaticResource WorkflowWorkbench.CanvasTextBrush}" />
+        <Setter Property="SelectionRectangleStyle"
+                Value="{StaticResource WorkflowWorkbench.SelectionRectangleStyle}" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.ItemContainerStyle"
+           TargetType="{x:Type studioNodify:ItemContainer}"
+           BasedOn="{StaticResource {x:Type nodify:ItemContainer}}">
+        <Setter Property="BorderThickness"
+                Value="2" />
+        <Setter Property="SelectedBorderThickness"
+                Value="4" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.NodeStyle"
+           TargetType="{x:Type studioNodify:Node}"
+           BasedOn="{StaticResource {x:Type nodify:Node}}">
+        <Setter Property="MinWidth"
+                Value="320" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.NodeInputStyle"
+           TargetType="{x:Type studioNodify:NodeInput}"
+           BasedOn="{StaticResource {x:Type nodify:NodeInput}}">
+        <Setter Property="Background"
+                Value="Transparent" />
+        <Setter Property="BorderBrush"
+                Value="{StaticResource WorkflowWorkbench.PortInputBrush}" />
+        <Setter Property="ConnectorTemplate"
+                Value="{StaticResource WorkflowWorkbench.NodeConnectorTemplate}" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.NodeOutputStyle"
+           TargetType="{x:Type studioNodify:NodeOutput}"
+           BasedOn="{StaticResource {x:Type nodify:NodeOutput}}">
+        <Setter Property="Background"
+                Value="Transparent" />
+        <Setter Property="BorderBrush"
+                Value="{StaticResource WorkflowWorkbench.PortOutputBrush}" />
+        <Setter Property="ConnectorTemplate"
+                Value="{StaticResource WorkflowWorkbench.NodeConnectorTemplate}" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.LineConnectionStyle"
+           TargetType="{x:Type studioNodify:LineConnection}"
+           BasedOn="{StaticResource {x:Type nodify:LineConnection}}">
+        <Setter Property="StrokeThickness"
+                Value="4" />
+        <Setter Property="Stroke"
+                Value="{DynamicResource LineConnection.StrokeBrush}" />
+        <Setter Property="Fill"
+                Value="{DynamicResource LineConnection.StrokeBrush}" />
+        <Setter Property="StrokeLineJoin"
+                Value="Round" />
+        <Setter Property="StrokeStartLineCap"
+                Value="Round" />
+        <Setter Property="StrokeEndLineCap"
+                Value="Round" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.PendingConnectionStyle"
+           TargetType="{x:Type studioNodify:PendingConnection}"
+           BasedOn="{StaticResource {x:Type nodify:PendingConnection}}">
+        <Setter Property="Background"
+                Value="{DynamicResource PendingConnection.BackgroundBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource PendingConnection.BorderBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource PendingConnection.ForegroundBrush}" />
+        <Setter Property="Stroke"
+                Value="{DynamicResource PendingConnection.StrokeBrush}" />
+        <Setter Property="StrokeThickness"
+                Value="3" />
+        <Setter Property="Padding"
+                Value="10 6" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.SidebarCardStyle"
+           TargetType="Border">
+        <Setter Property="Background"
+                Value="{StaticResource WorkflowWorkbench.PanelBackgroundBrush}" />
+        <Setter Property="BorderBrush"
+                Value="{StaticResource WorkflowWorkbench.PanelBorderBrush}" />
+        <Setter Property="BorderThickness"
+                Value="1" />
+        <Setter Property="CornerRadius"
+                Value="16" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.SurfaceCardStyle"
+           TargetType="Border"
+           BasedOn="{StaticResource WorkflowWorkbench.SidebarCardStyle}">
+        <Setter Property="Background"
+                Value="{StaticResource WorkflowWorkbench.SubtleBackgroundBrush}" />
+        <Setter Property="CornerRadius"
+                Value="12" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.TagBorderStyle"
+           TargetType="Border">
+        <Setter Property="Padding"
+                Value="10 4" />
+        <Setter Property="CornerRadius"
+                Value="999" />
+        <Setter Property="Background"
+                Value="{StaticResource WorkflowWorkbench.AccentSoftBrush}" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.SectionTitleTextStyle"
+           TargetType="TextBlock">
+        <Setter Property="FontSize"
+                Value="14" />
+        <Setter Property="FontWeight"
+                Value="SemiBold" />
+        <Setter Property="Foreground"
+                Value="{StaticResource WorkflowWorkbench.TextBrush}" />
+    </Style>
+
+    <Style x:Key="WorkflowWorkbench.CaptionTextStyle"
+           TargetType="TextBlock">
+        <Setter Property="FontSize"
+                Value="12" />
+        <Setter Property="Foreground"
+                Value="{StaticResource WorkflowWorkbench.SubtleTextBrush}" />
+    </Style>
+</ResourceDictionary>

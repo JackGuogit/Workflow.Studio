@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Workflow.Studio.Core\Workflow.Studio.Core.csproj" />
     <ProjectReference Include="..\Workflow.Studio.Nodify\Workflow.Studio.Nodify.csproj" />
+    <ProjectReference Include="..\Workflow.Studio.Theme\Workflow.Studio.Theme.csproj" />
   </ItemGroup>
 
 </Project>

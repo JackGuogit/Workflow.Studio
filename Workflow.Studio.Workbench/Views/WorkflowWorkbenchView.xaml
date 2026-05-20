@@ -3,23 +3,250 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="clr-namespace:Workflow.Studio.Core.Models;assembly=Workflow.Studio.Core"
              xmlns:nodify="clr-namespace:Workflow.Studio.Nodify;assembly=Workflow.Studio.Nodify"
              xmlns:viewModels="clr-namespace:Workflow.Studio.Workbench.ViewModels"
              mc:Ignorable="d"
              d:DesignHeight="900"
              d:DesignWidth="1440">
-    <Grid Background="#F3F4F6">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Workflow.Studio.Theme;component/Themes/WorkflowWorkbench.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="WorkbenchItemContainerStyle"
+                   TargetType="{x:Type nodify:ItemContainer}"
+                   BasedOn="{StaticResource WorkflowWorkbench.ItemContainerStyle}">
+                <Setter Property="Location"
+                        Value="{Binding Location}" />
+            </Style>
+
+            <Style x:Key="WorkbenchPortGroupChipStyle"
+                   TargetType="Border"
+                   BasedOn="{StaticResource WorkflowWorkbench.TagBorderStyle}">
+                <Setter Property="Margin"
+                        Value="0 0 6 6" />
+                <Setter Property="Background"
+                        Value="{StaticResource WorkflowWorkbench.SubtleBackgroundBrush}" />
+            </Style>
+
+            <DataTemplate x:Key="PortGroupChipTemplate"
+                          DataType="{x:Type viewModels:PortGroupViewModel}">
+                <Border Style="{StaticResource WorkbenchPortGroupChipStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontWeight="SemiBold"
+                                   Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                   Text="{Binding Name}" />
+                        <TextBlock Margin="6 0 0 0"
+                                   Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                   Text="{Binding Summary}" />
+                    </StackPanel>
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="NodeHeaderTemplate"
+                          DataType="{x:Type viewModels:NodeViewModel}">
+                <DockPanel LastChildFill="True">
+                    <Border x:Name="StatusBadge"
+                            DockPanel.Dock="Right"
+                            Margin="12 0 0 0"
+                            Padding="10 4"
+                            Background="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}"
+                            CornerRadius="999">
+                        <TextBlock x:Name="StatusTextBlock"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource WorkflowWorkbench.SecondaryAccentTextBrush}"
+                                   Text="{Binding StatusText}" />
+                    </Border>
+                    <StackPanel>
+                        <TextBlock FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                   Text="{Binding Title}" />
+                        <TextBlock Margin="0 4 0 0"
+                                   Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                   Text="{Binding Category}" />
+                    </StackPanel>
+                </DockPanel>
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Status}"
+                                 Value="{x:Static models:NodeStatus.Ready}">
+                        <Setter TargetName="StatusBadge"
+                                Property="Background"
+                                Value="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}" />
+                        <Setter TargetName="StatusTextBlock"
+                                Property="Foreground"
+                                Value="{StaticResource WorkflowWorkbench.SecondaryAccentTextBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}"
+                                 Value="{x:Static models:NodeStatus.Running}">
+                        <Setter TargetName="StatusBadge"
+                                Property="Background"
+                                Value="{StaticResource WorkflowWorkbench.WarningSoftBrush}" />
+                        <Setter TargetName="StatusTextBlock"
+                                Property="Foreground"
+                                Value="{StaticResource WorkflowWorkbench.WarningBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}"
+                                 Value="{x:Static models:NodeStatus.Success}">
+                        <Setter TargetName="StatusBadge"
+                                Property="Background"
+                                Value="{StaticResource WorkflowWorkbench.SuccessSoftBrush}" />
+                        <Setter TargetName="StatusTextBlock"
+                                Property="Foreground"
+                                Value="{StaticResource WorkflowWorkbench.SuccessBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}"
+                                 Value="{x:Static models:NodeStatus.Failed}">
+                        <Setter TargetName="StatusBadge"
+                                Property="Background"
+                                Value="{StaticResource WorkflowWorkbench.ErrorSoftBrush}" />
+                        <Setter TargetName="StatusTextBlock"
+                                Property="Foreground"
+                                Value="{StaticResource WorkflowWorkbench.ErrorBrush}" />
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+
+            <DataTemplate x:Key="NodeContentTemplate"
+                          DataType="{x:Type viewModels:NodeViewModel}">
+                <StackPanel>
+                    <TextBlock Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                               Text="{Binding Description}"
+                               TextWrapping="Wrap" />
+                    <Border Margin="0 12 0 0"
+                            Padding="12"
+                            Background="{StaticResource WorkflowWorkbench.AccentSoftBrush}"
+                            CornerRadius="10">
+                        <TextBlock Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
+                                   Text="{Binding NodeTypeText}"
+                                   TextWrapping="Wrap" />
+                    </Border>
+                    <Grid Margin="0 12 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0"
+                                Margin="0 0 6 0"
+                                Padding="10"
+                                Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
+                                           Text="输入分组" />
+                                <TextBlock Margin="0 4 0 0"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                           Text="{Binding InputPorts.Count, StringFormat={}{0} ports}" />
+                                <ItemsControl Margin="0 10 0 0"
+                                              ItemTemplate="{StaticResource PortGroupChipTemplate}"
+                                              ItemsSource="{Binding InputGroups}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1"
+                                Margin="6 0 0 0"
+                                Padding="10"
+                                Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
+                                           Text="输出分组" />
+                                <TextBlock Margin="0 4 0 0"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                           Text="{Binding OutputPorts.Count, StringFormat={}{0} ports}" />
+                                <ItemsControl Margin="0 10 0 0"
+                                              ItemTemplate="{StaticResource PortGroupChipTemplate}"
+                                              ItemsSource="{Binding OutputGroups}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <Border Margin="0 12 0 0"
+                            Padding="10"
+                            Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
+                                       Text="{Binding PortSummary}" />
+                            <TextBlock Margin="0 6 0 0"
+                                       FontFamily="Consolas"
+                                       Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                       Text="{Binding PreviewText}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </DataTemplate>
+
+            <DataTemplate x:Key="InputPortHeaderTemplate"
+                          DataType="{x:Type viewModels:PortViewModel}">
+                <StackPanel Margin="10 4 0 4">
+                    <TextBlock FontWeight="SemiBold"
+                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                               Text="{Binding Title}" />
+                    <TextBlock Margin="0 2 0 0"
+                               FontSize="11"
+                               Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                               Text="{Binding DataTypeName}" />
+                </StackPanel>
+            </DataTemplate>
+
+            <DataTemplate x:Key="OutputPortHeaderTemplate"
+                          DataType="{x:Type viewModels:PortViewModel}">
+                <StackPanel Margin="0 4 10 4"
+                            HorizontalAlignment="Right">
+                    <TextBlock FontWeight="SemiBold"
+                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                               Text="{Binding Title}"
+                               TextAlignment="Right" />
+                    <TextBlock Margin="0 2 0 0"
+                               FontSize="11"
+                               Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                               Text="{Binding DataTypeName}"
+                               TextAlignment="Right" />
+                </StackPanel>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ConnectionTemplate"
+                          DataType="{x:Type viewModels:ConnectionViewModel}">
+                <nodify:LineConnection Style="{StaticResource WorkflowWorkbench.LineConnectionStyle}"
+                                       Source="{Binding Source.Anchor}"
+                                       Target="{Binding Target.Anchor}" />
+            </DataTemplate>
+
+            <DataTemplate x:Key="PendingConnectionTemplate"
+                          DataType="{x:Type viewModels:PendingConnectionViewModel}">
+                <nodify:PendingConnection Style="{StaticResource WorkflowWorkbench.PendingConnectionStyle}"
+                                          StartedCommand="{Binding StartCommand}"
+                                          CompletedCommand="{Binding FinishCommand}"
+                                          AllowOnlyConnectors="True"
+                                          EnablePreview="True"
+                                          EnableSnapping="True" />
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource WorkflowWorkbench.PageBackgroundBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="360" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <Border Margin="16"
                 Padding="20"
-                Background="White"
-                BorderBrush="#E5E7EB"
-                BorderThickness="1"
-                CornerRadius="16">
+                Style="{StaticResource WorkflowWorkbench.SidebarCardStyle}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -32,145 +259,133 @@
                 <StackPanel>
                     <TextBlock FontSize="28"
                                FontWeight="SemiBold"
+                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
                                Text="Workflow Workbench" />
-                    <TextBlock Margin="0,8,0,0"
-                               Foreground="#4B5563"
+                    <TextBlock Margin="0 8 0 0"
+                               Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
                                Text="{Binding StatusMessage}"
                                TextWrapping="Wrap" />
                 </StackPanel>
 
                 <UniformGrid Grid.Row="1"
-                             Margin="0,20,0,0"
+                             Margin="0 20 0 0"
                              Columns="2">
                     <Button Height="40"
-                            Margin="0,0,8,0"
+                            Margin="0 0 8 0"
+                            Padding="16 0"
+                            Background="{StaticResource WorkflowWorkbench.AccentBrush}"
+                            BorderBrush="{StaticResource WorkflowWorkbench.AccentBrush}"
+                            Foreground="White"
                             Command="{Binding ExecuteWorkflowCommand}"
                             Content="执行工作流" />
                     <Button Height="40"
-                            Margin="8,0,0,0"
+                            Margin="8 0 0 0"
+                            Padding="16 0"
+                            Background="{StaticResource WorkflowWorkbench.SubtleBackgroundBrush}"
+                            BorderBrush="{StaticResource WorkflowWorkbench.PanelBorderBrush}"
+                            Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
                             Command="{Binding ResetWorkflowCommand}"
                             Content="重置状态" />
                 </UniformGrid>
 
                 <Border Grid.Row="2"
-                        Margin="0,20,0,0"
+                        Margin="0 20 0 0"
                         Padding="14"
-                        Background="#F9FAFB"
-                        BorderBrush="#E5E7EB"
-                        BorderThickness="1"
-                        CornerRadius="12">
+                        Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
+                                   Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
                                    Text="节点库" />
-                        <ItemsControl Margin="0,12,0,0"
-                                      ItemsSource="{Binding AvailableNodes}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type viewModels:NodeLibraryItemViewModel}">
-                                    <Border Margin="0,0,0,10"
-                                            Padding="12"
-                                            Background="White"
-                                            BorderBrush="#E5E7EB"
-                                            BorderThickness="1"
-                                            CornerRadius="10">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel>
-                                                <TextBlock FontWeight="SemiBold"
-                                                           Text="{Binding DisplayName}" />
-                                                <TextBlock Margin="0,4,0,0"
-                                                           Foreground="#4338CA"
-                                                           Text="{Binding Category}" />
-                                                <TextBlock Margin="0,4,0,0"
-                                                           Foreground="#6B7280"
-                                                           Text="{Binding Description}"
-                                                           TextWrapping="Wrap" />
-                                            </StackPanel>
-                                            <Button Grid.Column="1"
-                                                    Width="72"
-                                                    Height="32"
-                                                    Margin="12,0,0,0"
-                                                    VerticalAlignment="Center"
-                                                    Command="{Binding DataContext.AddNodeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}"
-                                                    Content="添加" />
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <ScrollViewer Margin="0 12 0 0"
+                                      VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding AvailableNodes}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:NodeLibraryItemViewModel}">
+                                        <Border Margin="0 0 0 10"
+                                                Padding="12"
+                                                Style="{StaticResource WorkflowWorkbench.SidebarCardStyle}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock FontWeight="SemiBold"
+                                                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                                               Text="{Binding DisplayName}" />
+                                                    <TextBlock Margin="0 4 0 0"
+                                                               Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
+                                                               Text="{Binding Category}" />
+                                                    <TextBlock Margin="0 4 0 0"
+                                                               Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                                               Text="{Binding Description}"
+                                                               TextWrapping="Wrap" />
+                                                </StackPanel>
+                                                <Button Grid.Column="1"
+                                                        Width="72"
+                                                        Height="32"
+                                                        Margin="12 0 0 0"
+                                                        Background="{StaticResource WorkflowWorkbench.AccentSoftBrush}"
+                                                        BorderBrush="{StaticResource WorkflowWorkbench.AccentBrush}"
+                                                        Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
+                                                        VerticalAlignment="Center"
+                                                        Command="{Binding DataContext.AddNodeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        Content="添加" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </DockPanel>
                 </Border>
 
                 <Border Grid.Row="3"
-                        Margin="0,20,0,0"
+                        Margin="0 20 0 0"
                         Padding="14"
-                        Background="#F9FAFB"
-                        BorderBrush="#E5E7EB"
-                        BorderThickness="1"
-                        CornerRadius="12">
+                        Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
                     <StackPanel>
-                        <TextBlock FontSize="14"
-                                   FontWeight="SemiBold"
+                        <TextBlock Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
                                    Text="Global Variables" />
-                        <TextBlock Margin="0,8,0,0"
+                        <TextBlock Margin="0 8 0 0"
                                    FontFamily="Consolas"
-                                   Foreground="#374151"
+                                   Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
                                    Text="{Binding GlobalVariablesText}"
                                    TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Row="4"
-                        Margin="0,20,0,0"
+                        Margin="0 20 0 0"
                         Padding="14"
-                        Background="#F9FAFB"
-                        BorderBrush="#E5E7EB"
-                        BorderThickness="1"
-                        CornerRadius="12">
+                        Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
+                                   Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
                                    Text="Nodes" />
-                        <ScrollViewer Margin="0,12,0,0"
+                        <ScrollViewer Margin="0 12 0 0"
                                       VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Nodes}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:NodeViewModel}">
-                                        <Border Margin="0,0,0,10"
+                                        <Border Margin="0 0 0 10"
                                                 Padding="12"
-                                                Background="White"
-                                                BorderBrush="#E5E7EB"
-                                                BorderThickness="1"
-                                                CornerRadius="10">
+                                                Style="{StaticResource WorkflowWorkbench.SidebarCardStyle}">
                                             <StackPanel>
-                                                <DockPanel>
-                                                    <TextBlock FontWeight="SemiBold"
-                                                               Text="{Binding Title}" />
-                                                    <Border DockPanel.Dock="Right"
-                                                            Padding="8,2"
-                                                            Background="#EEF2FF"
-                                                            CornerRadius="999">
-                                                        <TextBlock Foreground="#4338CA"
-                                                                   Text="{Binding StatusText}" />
-                                                    </Border>
-                                                </DockPanel>
-                                                <TextBlock Margin="0,4,0,0"
-                                                           Foreground="#6B7280"
+                                                <ContentPresenter Content="{Binding}"
+                                                                  ContentTemplate="{StaticResource NodeHeaderTemplate}" />
+                                                <TextBlock Margin="0 10 0 0"
+                                                           Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
                                                            Text="{Binding Description}"
                                                            TextWrapping="Wrap" />
-                                                <TextBlock Margin="0,8,0,0"
-                                                           Foreground="#4338CA"
+                                                <TextBlock Margin="0 10 0 0"
+                                                           Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
                                                            Text="{Binding NodeTypeText}"
                                                            TextWrapping="Wrap" />
-                                                <TextBlock Margin="0,8,0,0"
+                                                <TextBlock Margin="0 10 0 0"
                                                            FontFamily="Consolas"
-                                                           Foreground="#374151"
+                                                           Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
                                                            Text="{Binding PreviewText}"
                                                            TextWrapping="Wrap" />
                                             </StackPanel>
@@ -185,168 +400,100 @@
         </Border>
 
         <Border Grid.Column="1"
-                Margin="0,16,16,16"
-                Background="#111827"
-                CornerRadius="16">
-            <nodify:NodifyEditor ItemsSource="{Binding Nodes}"
-                                 Connections="{Binding Connections}"
-                                 PendingConnection="{Binding PendingConnection}"
-                                 Background="#111827">
-                <nodify:NodifyEditor.ItemContainerStyle>
-                    <Style TargetType="{x:Type nodify:ItemContainer}">
-                        <Setter Property="Location"
-                                Value="{Binding Location}" />
-                    </Style>
-                </nodify:NodifyEditor.ItemContainerStyle>
+                Margin="0 16 16 16"
+                Background="{StaticResource WorkflowWorkbench.CanvasOverlayBrush}"
+                CornerRadius="18">
+            <Grid ClipToBounds="True">
+                <Rectangle Fill="{StaticResource WorkflowWorkbench.CanvasOverlayBrush}" />
+                <Rectangle Fill="{StaticResource WorkflowWorkbench.LargeGridBrush}"
+                           IsHitTestVisible="False"
+                           Opacity="0.55" />
+                <Rectangle Fill="{StaticResource WorkflowWorkbench.SmallGridBrush}"
+                           IsHitTestVisible="False"
+                           Opacity="0.8" />
 
-                <nodify:NodifyEditor.ConnectionTemplate>
-                    <DataTemplate DataType="{x:Type viewModels:ConnectionViewModel}">
-                        <nodify:LineConnection Source="{Binding Source.Anchor}"
-                                               Target="{Binding Target.Anchor}"
-                                               Stroke="#60A5FA"
-                                               StrokeThickness="3" />
-                    </DataTemplate>
-                </nodify:NodifyEditor.ConnectionTemplate>
+                <nodify:NodifyEditor Style="{StaticResource WorkflowWorkbench.EditorStyle}"
+                                     ItemsSource="{Binding Nodes}"
+                                     Connections="{Binding Connections}"
+                                     PendingConnection="{Binding PendingConnection}">
+                    <nodify:NodifyEditor.InputBindings>
+                        <KeyBinding Key="Delete"
+                                    Command="{Binding ResetWorkflowCommand}" />
+                    </nodify:NodifyEditor.InputBindings>
 
-                <nodify:NodifyEditor.PendingConnectionTemplate>
-                    <DataTemplate DataType="{x:Type viewModels:PendingConnectionViewModel}">
-                        <nodify:PendingConnection StartedCommand="{Binding StartCommand}"
-                                                  CompletedCommand="{Binding FinishCommand}"
-                                                  AllowOnlyConnectors="True"
-                                                  EnablePreview="True"
-                                                  EnableSnapping="True" />
-                    </DataTemplate>
-                </nodify:NodifyEditor.PendingConnectionTemplate>
+                    <nodify:NodifyEditor.ItemContainerStyle>
+                        <Style TargetType="{x:Type nodify:ItemContainer}"
+                               BasedOn="{StaticResource WorkbenchItemContainerStyle}" />
+                    </nodify:NodifyEditor.ItemContainerStyle>
 
-                <nodify:NodifyEditor.ItemTemplate>
-                    <DataTemplate DataType="{x:Type viewModels:NodeViewModel}">
-                        <nodify:Node Header="{Binding Title}"
-                                     Input="{Binding InputPorts}"
-                                     Output="{Binding OutputPorts}"
-                                     MinWidth="260">
-                            <nodify:Node.InputConnectorTemplate>
-                                <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
-                                    <nodify:NodeInput Header="{Binding Title}"
-                                                      Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                                      IsConnected="{Binding IsConnected}"
-                                                      ToolTip="{Binding DisplayValue}" />
-                                </DataTemplate>
-                            </nodify:Node.InputConnectorTemplate>
+                    <nodify:NodifyEditor.ConnectionTemplate>
+                        <StaticResource ResourceKey="ConnectionTemplate" />
+                    </nodify:NodifyEditor.ConnectionTemplate>
 
-                            <nodify:Node.OutputConnectorTemplate>
-                                <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
-                                    <nodify:NodeOutput Header="{Binding Title}"
-                                                       Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                                       IsConnected="{Binding IsConnected}"
-                                                       ToolTip="{Binding DisplayValue}" />
-                                </DataTemplate>
-                            </nodify:Node.OutputConnectorTemplate>
+                    <nodify:NodifyEditor.PendingConnectionTemplate>
+                        <StaticResource ResourceKey="PendingConnectionTemplate" />
+                    </nodify:NodifyEditor.PendingConnectionTemplate>
 
-                            <StackPanel Margin="12">
-                                <TextBlock FontWeight="SemiBold"
-                                           Foreground="#111827"
-                                           Text="{Binding Category}" />
-                                <TextBlock Margin="0,6,0,0"
-                                           Foreground="#4B5563"
-                                           Text="{Binding Description}"
-                                           TextWrapping="Wrap" />
-                                <Border Margin="0,10,0,0"
-                                        Padding="10"
-                                        Background="#EEF2FF"
-                                        CornerRadius="10">
-                                    <TextBlock Foreground="#4338CA"
-                                               Text="{Binding NodeTypeText}"
-                                               TextWrapping="Wrap" />
-                                </Border>
-                                <Border Margin="0,10,0,0"
-                                        Padding="10"
-                                        Background="#F9FAFB"
-                                        BorderBrush="#E5E7EB"
-                                        BorderThickness="1"
-                                        CornerRadius="10">
-                                    <StackPanel>
-                                        <TextBlock Foreground="#6B7280"
-                                                   Text="{Binding PortSummary}" />
-                                        <TextBlock Margin="0,6,0,0"
-                                                   FontFamily="Consolas"
-                                                   Foreground="#111827"
-                                                   Text="{Binding PreviewText}"
-                                                   TextWrapping="Wrap" />
-                                        <Expander Margin="0,10,0,0"
-                                                  IsExpanded="True"
-                                                  Header="输入端口分组">
-                                            <ItemsControl ItemsSource="{Binding InputGroups}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate DataType="{x:Type viewModels:PortGroupViewModel}">
-                                                        <Expander Margin="0,6,0,0"
-                                                                  IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
-                                                            <Expander.Header>
-                                                                <DockPanel>
-                                                                    <TextBlock FontWeight="SemiBold"
-                                                                               Text="{Binding Name}" />
-                                                                    <TextBlock DockPanel.Dock="Right"
-                                                                               Foreground="#6B7280"
-                                                                               Text="{Binding Summary}" />
-                                                                </DockPanel>
-                                                            </Expander.Header>
-                                                            <ItemsControl ItemsSource="{Binding Ports}">
-                                                                <ItemsControl.ItemTemplate>
-                                                                    <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
-                                                                        <DockPanel Margin="0,4,0,0">
-                                                                            <TextBlock Text="{Binding Title}" />
-                                                                            <TextBlock DockPanel.Dock="Right"
-                                                                                       Foreground="#6B7280"
-                                                                                       Text="{Binding DisplayValue}" />
-                                                                        </DockPanel>
-                                                                    </DataTemplate>
-                                                                </ItemsControl.ItemTemplate>
-                                                            </ItemsControl>
-                                                        </Expander>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </Expander>
-                                        <Expander Margin="0,10,0,0"
-                                                  IsExpanded="True"
-                                                  Header="输出端口分组">
-                                            <ItemsControl ItemsSource="{Binding OutputGroups}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate DataType="{x:Type viewModels:PortGroupViewModel}">
-                                                        <Expander Margin="0,6,0,0"
-                                                                  IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
-                                                            <Expander.Header>
-                                                                <DockPanel>
-                                                                    <TextBlock FontWeight="SemiBold"
-                                                                               Text="{Binding Name}" />
-                                                                    <TextBlock DockPanel.Dock="Right"
-                                                                               Foreground="#6B7280"
-                                                                               Text="{Binding Summary}" />
-                                                                </DockPanel>
-                                                            </Expander.Header>
-                                                            <ItemsControl ItemsSource="{Binding Ports}">
-                                                                <ItemsControl.ItemTemplate>
-                                                                    <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
-                                                                        <DockPanel Margin="0,4,0,0">
-                                                                            <TextBlock Text="{Binding Title}" />
-                                                                            <TextBlock DockPanel.Dock="Right"
-                                                                                       Foreground="#6B7280"
-                                                                                       Text="{Binding DisplayValue}" />
-                                                                        </DockPanel>
-                                                                    </DataTemplate>
-                                                                </ItemsControl.ItemTemplate>
-                                                            </ItemsControl>
-                                                        </Expander>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </Expander>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </nodify:Node>
-                    </DataTemplate>
-                </nodify:NodifyEditor.ItemTemplate>
-            </nodify:NodifyEditor>
+                    <nodify:NodifyEditor.ItemTemplate>
+                        <DataTemplate DataType="{x:Type viewModels:NodeViewModel}">
+                            <nodify:Node Style="{StaticResource WorkflowWorkbench.NodeStyle}"
+                                         Header="{Binding}"
+                                         HeaderTemplate="{StaticResource NodeHeaderTemplate}"
+                                         Content="{Binding}"
+                                         ContentTemplate="{StaticResource NodeContentTemplate}"
+                                         Footer="{Binding PortSummary}"
+                                         Input="{Binding InputPorts}"
+                                         Output="{Binding OutputPorts}">
+                                <nodify:Node.InputConnectorTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
+                                        <nodify:NodeInput Style="{StaticResource WorkflowWorkbench.NodeInputStyle}"
+                                                          Header="{Binding}"
+                                                          HeaderTemplate="{StaticResource InputPortHeaderTemplate}"
+                                                          Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                          IsConnected="{Binding IsConnected}"
+                                                          ToolTip="{Binding DisplayValue}" />
+                                    </DataTemplate>
+                                </nodify:Node.InputConnectorTemplate>
+
+                                <nodify:Node.OutputConnectorTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
+                                        <nodify:NodeOutput Style="{StaticResource WorkflowWorkbench.NodeOutputStyle}"
+                                                           Header="{Binding}"
+                                                           HeaderTemplate="{StaticResource OutputPortHeaderTemplate}"
+                                                           Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                           IsConnected="{Binding IsConnected}"
+                                                           ToolTip="{Binding DisplayValue}" />
+                                    </DataTemplate>
+                                </nodify:Node.OutputConnectorTemplate>
+                            </nodify:Node>
+                        </DataTemplate>
+                    </nodify:NodifyEditor.ItemTemplate>
+                </nodify:NodifyEditor>
+
+                <Border Margin="20"
+                        Padding="14"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Background="#CC0F172A"
+                        BorderBrush="#334155"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        IsHitTestVisible="False">
+                    <StackPanel>
+                        <TextBlock FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource WorkflowWorkbench.CanvasTextBrush}"
+                                   Text="Graph Editor" />
+                        <TextBlock Margin="0 6 0 0"
+                                   Foreground="#CBD5E1"
+                                   Text="拖拽节点调整布局，拖动连接点创建连线。" />
+                        <TextBlock Margin="0 4 0 0"
+                                   Foreground="#94A3B8"
+                                   Text="{Binding StatusMessage}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>
