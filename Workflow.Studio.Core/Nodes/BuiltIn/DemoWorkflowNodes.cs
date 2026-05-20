@@ -110,7 +110,7 @@ public sealed class UppercaseTransformNode : IWorkflowNodeDefinition
         {
             Message = "转换节点已完成大写处理。"
         };
-
+        await Task.Delay(2000, cancellationToken); // 模拟异步操作
         result.OutputValues["result"] = transformed;
         result.GlobalVariables["LastTransform"] = transformed;
         return result;
@@ -167,7 +167,7 @@ public sealed class PreviewNode : IWorkflowNodeDefinition
         {
             Message = "预览节点已生成预览内容。"
         };
-
+        await Task.Delay(2000, cancellationToken); // 模拟异步操作
         result.OutputValues["preview-text"] = preview;
         result.GlobalVariables["LastPreview"] = preview;
         return result;

@@ -110,83 +110,107 @@
                 </DataTemplate.Triggers>
             </DataTemplate>
 
-            <DataTemplate x:Key="NodeContentTemplate"
+            <DataTemplate x:Key="CanvasNodeHeaderTemplate"
                           DataType="{x:Type viewModels:NodeViewModel}">
-                <StackPanel>
-                    <TextBlock Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                <Grid MinWidth="220">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Margin="0 0 12 0">
+                        <TextBlock FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                   Text="{Binding Title}"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Margin="0 4 0 0"
+                                   Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                   Text="{Binding Category}"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Margin="0 4 0 0"
+                                   FontSize="11"
+                                   Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                   Text="{Binding PortSummary}" />
+                    </StackPanel>
+                    <Border x:Name="CompactStatusBadge"
+                            Grid.Column="1"
+                            Padding="10 4"
+                            VerticalAlignment="Top"
+                            Background="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}"
+                            CornerRadius="999">
+                        <TextBlock x:Name="CompactStatusTextBlock"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource WorkflowWorkbench.SecondaryAccentTextBrush}"
+                                   Text="{Binding StatusText}" />
+                    </Border>
+                </Grid>
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Status}"
+                                 Value="{x:Static models:NodeStatus.Ready}">
+                        <Setter TargetName="CompactStatusBadge"
+                                Property="Background"
+                                Value="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}" />
+                        <Setter TargetName="CompactStatusTextBlock"
+                                Property="Foreground"
+                                Value="{StaticResource WorkflowWorkbench.SecondaryAccentTextBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}"
+                                 Value="{x:Static models:NodeStatus.Running}">
+                        <Setter TargetName="CompactStatusBadge"
+                                Property="Background"
+                                Value="{StaticResource WorkflowWorkbench.WarningSoftBrush}" />
+                        <Setter TargetName="CompactStatusTextBlock"
+                                Property="Foreground"
+                                Value="{StaticResource WorkflowWorkbench.WarningBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}"
+                                 Value="{x:Static models:NodeStatus.Success}">
+                        <Setter TargetName="CompactStatusBadge"
+                                Property="Background"
+                                Value="{StaticResource WorkflowWorkbench.SuccessSoftBrush}" />
+                        <Setter TargetName="CompactStatusTextBlock"
+                                Property="Foreground"
+                                Value="{StaticResource WorkflowWorkbench.SuccessBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}"
+                                 Value="{x:Static models:NodeStatus.Failed}">
+                        <Setter TargetName="CompactStatusBadge"
+                                Property="Background"
+                                Value="{StaticResource WorkflowWorkbench.ErrorSoftBrush}" />
+                        <Setter TargetName="CompactStatusTextBlock"
+                                Property="Foreground"
+                                Value="{StaticResource WorkflowWorkbench.ErrorBrush}" />
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+
+            <DataTemplate x:Key="CanvasNodeToolTipTemplate"
+                          DataType="{x:Type viewModels:NodeViewModel}">
+                <StackPanel MaxWidth="320">
+                    <TextBlock FontWeight="SemiBold"
+                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                               Text="{Binding Title}" />
+                    <TextBlock Margin="0 4 0 0"
+                               Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
                                Text="{Binding Description}"
                                TextWrapping="Wrap" />
-                    <Border Margin="0 12 0 0"
-                            Padding="12"
+                    <Border Margin="0 10 0 0"
+                            Padding="10"
                             Background="{StaticResource WorkflowWorkbench.AccentSoftBrush}"
                             CornerRadius="10">
                         <TextBlock Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
                                    Text="{Binding NodeTypeText}"
                                    TextWrapping="Wrap" />
                     </Border>
-                    <Grid Margin="0 12 0 0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0"
-                                Margin="0 0 6 0"
-                                Padding="10"
-                                Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
-                            <StackPanel>
-                                <TextBlock Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
-                                           Text="输入分组" />
-                                <TextBlock Margin="0 4 0 0"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
-                                           Text="{Binding InputPorts.Count, StringFormat={}{0} ports}" />
-                                <ItemsControl Margin="0 10 0 0"
-                                              ItemTemplate="{StaticResource PortGroupChipTemplate}"
-                                              ItemsSource="{Binding InputGroups}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="1"
-                                Margin="6 0 0 0"
-                                Padding="10"
-                                Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
-                            <StackPanel>
-                                <TextBlock Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
-                                           Text="输出分组" />
-                                <TextBlock Margin="0 4 0 0"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
-                                           Text="{Binding OutputPorts.Count, StringFormat={}{0} ports}" />
-                                <ItemsControl Margin="0 10 0 0"
-                                              ItemTemplate="{StaticResource PortGroupChipTemplate}"
-                                              ItemsSource="{Binding OutputGroups}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                    <Border Margin="0 12 0 0"
-                            Padding="10"
-                            Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
-                        <StackPanel>
-                            <TextBlock Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
-                                       Text="{Binding PortSummary}" />
-                            <TextBlock Margin="0 6 0 0"
-                                       FontFamily="Consolas"
-                                       Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
-                                       Text="{Binding PreviewText}"
-                                       TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Border>
+                    <TextBlock Margin="0 10 0 0"
+                               Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
+                               Text="{Binding PortSummary}" />
+                    <TextBlock Margin="0 4 0 0"
+                               FontFamily="Consolas"
+                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                               Text="{Binding PreviewText}"
+                               TextWrapping="Wrap" />
                 </StackPanel>
             </DataTemplate>
 
@@ -438,12 +462,15 @@
                         <DataTemplate DataType="{x:Type viewModels:NodeViewModel}">
                             <nodify:Node Style="{StaticResource WorkflowWorkbench.NodeStyle}"
                                          Header="{Binding}"
-                                         HeaderTemplate="{StaticResource NodeHeaderTemplate}"
-                                         Content="{Binding}"
-                                         ContentTemplate="{StaticResource NodeContentTemplate}"
-                                         Footer="{Binding PortSummary}"
+                                         HeaderTemplate="{StaticResource CanvasNodeHeaderTemplate}"
                                          Input="{Binding InputPorts}"
-                                         Output="{Binding OutputPorts}">
+                                         Output="{Binding OutputPorts}"
+                                         ToolTipService.ShowDuration="60000">
+                                <nodify:Node.ToolTip>
+                                    <ToolTip Content="{Binding}"
+                                             ContentTemplate="{StaticResource CanvasNodeToolTipTemplate}"
+                                             Placement="Mouse" />
+                                </nodify:Node.ToolTip>
                                 <nodify:Node.InputConnectorTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
                                         <nodify:NodeInput Style="{StaticResource WorkflowWorkbench.NodeInputStyle}"
