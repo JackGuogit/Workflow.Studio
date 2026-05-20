@@ -9,4 +9,5 @@
   </Folder>
   <Project Path="Workflow.Studio.Core/Workflow.Studio.Core.csproj" />
   <Project Path="Workflow.Studio.Desktop/Workflow.Studio.Desktop.csproj" />
+  <Project Path="Workflow.Studio.Workbench/Workflow.Studio.Workbench.csproj" />
 </Solution>

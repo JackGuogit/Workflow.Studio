@@ -1,10 +1,16 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Workflow.Studio.Workbench.ViewModels;
 
 namespace Workflow.Studio.Desktop.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject
 {
+    public MainWindowViewModel(WorkflowWorkbenchViewModel workbench)
+    {
+        Workbench = workbench;
+    }
+
     public string Title { get; } = "Workflow Studio";
 
-    public string WelcomeMessage { get; } = "Autofac 已接入应用启动流程";
+    public WorkflowWorkbenchViewModel Workbench { get; }
 }

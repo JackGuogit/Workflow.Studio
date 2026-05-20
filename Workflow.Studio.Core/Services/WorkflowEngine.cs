@@ -1,0 +1,294 @@
+using Workflow.Studio.Core.Models;
+using Workflow.Studio.Core.Nodes;
+using CoreExecutionContext = Workflow.Studio.Core.Runtime.ExecutionContext;
+
+namespace Workflow.Studio.Core.Services;
+
+public sealed class WorkflowEngine
+{
+    private readonly PluginManager _pluginManager;
+    private readonly NodeManager _nodeManager;
+    private readonly WorkflowEventHub _eventHub;
+
+    public WorkflowEngine(PluginManager pluginManager, NodeManager nodeManager, WorkflowEventHub eventHub)
+    {
+        _pluginManager = pluginManager;
+        _nodeManager = nodeManager;
+        _eventHub = eventHub;
+    }
+
+    public event EventHandler<NodeStatusChangedEventArgs>? NodeStatusChanged;
+
+    public event EventHandler<PortValueChangedEventArgs>? PortValueChanged;
+
+    public async Task<CoreExecutionContext> ExecuteAsync(WorkflowData workflow, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(workflow);
+
+        _nodeManager.AttachWorkflow(workflow);
+        ResetWorkflowState(workflow);
+        await _pluginManager.InitializeAsync(cancellationToken);
+
+        var context = new CoreExecutionContext(workflow.GlobalVariables);
+        var executionBatches = BuildExecutionBatches(workflow);
+
+        foreach (var batch in executionBatches)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var batchTasks = batch
+                .Select(node => ExecuteNodeAsync(workflow, node, context, cancellationToken))
+                .ToArray();
+
+            await Task.WhenAll(batchTasks);
+        }
+
+        SyncGlobalVariables(workflow, context);
+        return context;
+    }
+
+    public IReadOnlyList<NodeData> BuildExecutionPlan(WorkflowData workflow)
+    {
+        return BuildExecutionBatches(workflow).SelectMany(batch => batch).ToList();
+    }
+
+    public IReadOnlyList<IReadOnlyList<NodeData>> BuildExecutionBatches(WorkflowData workflow)
+    {
+        var indegree = workflow.Nodes.ToDictionary(node => node.Metadata.Id, _ => 0, StringComparer.OrdinalIgnoreCase);
+        var adjacency = workflow.Nodes.ToDictionary(
+            node => node.Metadata.Id,
+            _ => new List<string>(),
+            StringComparer.OrdinalIgnoreCase);
+
+        foreach (var connection in workflow.Connections)
+        {
+            indegree[connection.TargetNodeId]++;
+            adjacency[connection.SourceNodeId].Add(connection.TargetNodeId);
+        }
+
+        var queue = new Queue<NodeData>(
+            workflow.Nodes
+                .Where(node => indegree[node.Metadata.Id] == 0)
+                .OrderBy(node => node.Metadata.Name, StringComparer.OrdinalIgnoreCase));
+        var visitedCount = 0;
+        var batches = new List<IReadOnlyList<NodeData>>();
+
+        while (queue.Count > 0)
+        {
+            var batchSize = queue.Count;
+            var currentBatch = new List<NodeData>(batchSize);
+
+            for (var index = 0; index < batchSize; index++)
+            {
+                var current = queue.Dequeue();
+                currentBatch.Add(current);
+                visitedCount++;
+
+                foreach (var targetNodeId in adjacency[current.Metadata.Id])
+                {
+                    indegree[targetNodeId]--;
+
+                    if (indegree[targetNodeId] == 0)
+                    {
+                        queue.Enqueue(_nodeManager.GetNode(targetNodeId));
+                    }
+                }
+            }
+
+            batches.Add(currentBatch);
+        }
+
+        if (visitedCount != workflow.Nodes.Count)
+        {
+            throw new InvalidOperationException("Workflow contains a cycle and cannot be executed as a DAG.");
+        }
+
+        return batches;
+    }
+
+    private static IReadOnlyDictionary<string, object?> SnapshotPorts(IEnumerable<PortData> ports)
+    {
+        return ports.ToDictionary(port => port.Metadata.Id, port => port.Value, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private async Task ExecuteNodeAsync(
+        WorkflowData workflow,
+        NodeData node,
+        CoreExecutionContext context,
+        CancellationToken cancellationToken)
+    {
+        var startedAt = DateTimeOffset.UtcNow;
+        var inputSnapshot = SnapshotPorts(node.InputPorts);
+
+        try
+        {
+            UpdateNodeStatus(node, NodeStatus.Running);
+
+            var nodeType = _nodeManager.GetNodeType(node.NodeTypeId);
+            var request = new NodeExecutionRequest
+            {
+                Node = node,
+                InputValues = inputSnapshot
+            };
+
+            var result = await nodeType.ExecuteAsync(request, context, cancellationToken);
+            ApplyNodeResult(node, result, context);
+            PropagateOutputs(workflow, node, context);
+
+            UpdateNodeStatus(node, NodeStatus.Success);
+            CaptureExecutionArtifacts(node, result.Message, startedAt, inputSnapshot, context);
+        }
+        catch (Exception ex)
+        {
+            UpdateNodeStatus(node, NodeStatus.Failed);
+            MarkPortsFailed(node);
+            CaptureExecutionArtifacts(node, ex.Message, startedAt, inputSnapshot, context);
+            throw;
+        }
+    }
+
+    private void CaptureExecutionArtifacts(
+        NodeData node,
+        string? message,
+        DateTimeOffset startedAt,
+        IReadOnlyDictionary<string, object?> inputSnapshot,
+        CoreExecutionContext context)
+    {
+        var outputSnapshot = SnapshotPorts(node.OutputPorts);
+
+        context.AddRecord(new NodeExecutionRecord
+        {
+            NodeId = node.Metadata.Id,
+            NodeName = node.Metadata.Name,
+            StartedAt = startedAt,
+            FinishedAt = DateTimeOffset.UtcNow,
+            Status = node.Status,
+            Message = message,
+            InputSnapshot = inputSnapshot,
+            OutputSnapshot = outputSnapshot
+        });
+
+        context.CaptureNodeSnapshot(node.Metadata.Id, node.Status, inputSnapshot, outputSnapshot);
+    }
+
+    private void ApplyNodeResult(NodeData node, NodeExecutionResult result, CoreExecutionContext context)
+    {
+        foreach (var outputPort in node.OutputPorts)
+        {
+            if (!result.OutputValues.TryGetValue(outputPort.Metadata.Id, out var value))
+            {
+                continue;
+            }
+
+            outputPort.SetValue(value);
+            context.CapturePortValue(node.Metadata.Id, outputPort.Metadata.Id, value);
+            RaisePortValueChanged(node.Metadata.Id, outputPort);
+        }
+
+        foreach (var globalVariable in result.GlobalVariables)
+        {
+            context.GlobalVariables[globalVariable.Key] = globalVariable.Value;
+        }
+    }
+
+    private void PropagateOutputs(WorkflowData workflow, NodeData sourceNode, CoreExecutionContext context)
+    {
+        foreach (var connection in _nodeManager.GetOutgoingConnections(workflow, sourceNode.Metadata.Id))
+        {
+            var sourcePort = _nodeManager.GetPort(connection.SourceNodeId, connection.SourcePortId);
+            var targetPort = _nodeManager.GetPort(connection.TargetNodeId, connection.TargetPortId);
+
+            targetPort.SetValue(sourcePort.Value);
+            context.CapturePortValue(connection.TargetNodeId, connection.TargetPortId, sourcePort.Value);
+            RaisePortValueChanged(connection.TargetNodeId, targetPort);
+        }
+    }
+
+    private void ResetWorkflowState(WorkflowData workflow)
+    {
+        foreach (var node in workflow.Nodes)
+        {
+            node.SetStatus(NodeStatus.Ready);
+
+            foreach (var port in node.InputPorts.Concat(node.OutputPorts))
+            {
+                port.Clear();
+            }
+        }
+
+        foreach (var connection in workflow.Connections)
+        {
+            _nodeManager.GetPort(connection.SourceNodeId, connection.SourcePortId).MarkConnected();
+            _nodeManager.GetPort(connection.TargetNodeId, connection.TargetPortId).MarkConnected();
+        }
+    }
+
+    private void UpdateNodeStatus(NodeData node, NodeStatus status)
+    {
+        node.SetStatus(status);
+        _eventHub.PublishNodeStatusChanged(node.Metadata.Id, status);
+        NodeStatusChanged?.Invoke(this, new NodeStatusChangedEventArgs(node.Metadata.Id, status));
+    }
+
+    private void RaisePortValueChanged(string nodeId, PortData port)
+    {
+        _eventHub.PublishPortValueChanged(nodeId, port.Metadata.Id, port.Value, port.Status);
+        PortValueChanged?.Invoke(
+            this,
+            new PortValueChangedEventArgs(
+                nodeId,
+                port.Metadata.Id,
+                port.Value,
+                port.Status));
+    }
+
+    private static void MarkPortsFailed(NodeData node)
+    {
+        foreach (var port in node.InputPorts.Concat(node.OutputPorts))
+        {
+            port.MarkFailed();
+        }
+    }
+
+    private static void SyncGlobalVariables(WorkflowData workflow, CoreExecutionContext context)
+    {
+        workflow.GlobalVariables.Clear();
+
+        foreach (var entry in context.GlobalVariables)
+        {
+            workflow.GlobalVariables[entry.Key] = entry.Value;
+        }
+    }
+}
+
+public sealed class NodeStatusChangedEventArgs : EventArgs
+{
+    public NodeStatusChangedEventArgs(string nodeId, NodeStatus status)
+    {
+        NodeId = nodeId;
+        Status = status;
+    }
+
+    public string NodeId { get; }
+
+    public NodeStatus Status { get; }
+}
+
+public sealed class PortValueChangedEventArgs : EventArgs
+{
+    public PortValueChangedEventArgs(string nodeId, string portId, object? value, PortStatus status)
+    {
+        NodeId = nodeId;
+        PortId = portId;
+        Value = value;
+        Status = status;
+    }
+
+    public string NodeId { get; }
+
+    public string PortId { get; }
+
+    public object? Value { get; }
+
+    public PortStatus Status { get; }
+}
