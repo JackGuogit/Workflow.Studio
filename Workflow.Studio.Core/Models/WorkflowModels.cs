@@ -41,18 +41,18 @@ public interface INode
 
     string NodeTypeId { get; }
 
-    IReadOnlyCollection<PortData> InputPorts { get; }
+    Collection<PortData> InputPorts { get; }
 
-    IReadOnlyCollection<PortData> OutputPorts { get; }
+    Collection<PortData> OutputPorts { get; }
 }
 
 public sealed class PortMetadata
 {
-    public required string Id { get; init; }
+    public string Id { get; init; }
 
-    public required string Name { get; init; }
+    public string Name { get; init; }
 
-    public required Type DataType { get; init; }
+    public Type DataType { get; init; }
 
     public string GroupName { get; init; } = "Default";
 
@@ -110,9 +110,9 @@ public sealed class PortData : IPort
 
 public sealed class NodeMetadata
 {
-    public required string Id { get; init; }
+    public string Id { get; init; }
 
-    public required string Name { get; init; }
+    public string Name { get; init; }
 
     public string Category { get; init; } = string.Empty;
 
@@ -147,10 +147,6 @@ public sealed class NodeData : INode
     public Collection<PortData> InputPorts { get; } = [];
 
     public Collection<PortData> OutputPorts { get; } = [];
-
-    IReadOnlyCollection<PortData> INode.InputPorts => InputPorts;
-
-    IReadOnlyCollection<PortData> INode.OutputPorts => OutputPorts;
 
     public PortData AddInputPort(string id, string name, Type dataType, string groupName = "Input", string? description = null)
     {
@@ -199,13 +195,13 @@ public sealed class NodeData : INode
 
 public sealed class ConnectionData
 {
-    public required string SourceNodeId { get; init; }
+    public string SourceNodeId { get; init; }
 
-    public required string SourcePortId { get; init; }
+    public string SourcePortId { get; init; }
 
-    public required string TargetNodeId { get; init; }
+    public string TargetNodeId { get; init; }
 
-    public required string TargetPortId { get; init; }
+    public string TargetPortId { get; init; }
 }
 
 public sealed class WorkflowData
@@ -239,9 +235,9 @@ public sealed class WorkflowData
 
 public sealed class PluginMetadata
 {
-    public required string Id { get; init; }
+    public string Id { get; init; }
 
-    public required string Name { get; init; }
+    public string Name { get; init; }
 
     public string Description { get; init; } = string.Empty;
 
@@ -254,9 +250,9 @@ public sealed class PluginMetadata
 
 public sealed class NodeExecutionRequest
 {
-    public required NodeData Node { get; init; }
+    public NodeData Node { get; init; }
 
-    public required IReadOnlyDictionary<string, object?> InputValues { get; init; }
+    public IReadOnlyDictionary<string, object?> InputValues { get; init; }
 }
 
 public sealed class NodeExecutionResult
@@ -270,19 +266,19 @@ public sealed class NodeExecutionResult
 
 public sealed class NodeExecutionRecord
 {
-    public required string NodeId { get; init; }
+    public string NodeId { get; init; }
 
-    public required string NodeName { get; init; }
+    public string NodeName { get; init; }
 
-    public required DateTimeOffset StartedAt { get; init; }
+    public DateTimeOffset StartedAt { get; init; }
 
-    public required DateTimeOffset FinishedAt { get; init; }
+    public DateTimeOffset FinishedAt { get; init; }
 
-    public required NodeStatus Status { get; init; }
+    public NodeStatus Status { get; init; }
 
     public string? Message { get; init; }
 
-    public required IReadOnlyDictionary<string, object?> InputSnapshot { get; init; }
+    public IReadOnlyDictionary<string, object?> InputSnapshot { get; init; }
 
-    public required IReadOnlyDictionary<string, object?> OutputSnapshot { get; init; }
+    public IReadOnlyDictionary<string, object?> OutputSnapshot { get; init; }
 }
