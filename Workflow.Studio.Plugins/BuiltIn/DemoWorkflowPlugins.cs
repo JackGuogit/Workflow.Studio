@@ -1,16 +1,7 @@
 using Workflow.Studio.Core.Models;
+using Workflow.Studio.Core.Plugins;
 
-namespace Workflow.Studio.Core.Plugins.BuiltIn;
-
-public interface ITextTransformPlugin
-{
-    ValueTask<string> TransformToUppercaseAsync(string input, CancellationToken cancellationToken);
-}
-
-public interface IPreviewPlugin
-{
-    ValueTask<string> BuildPreviewAsync(string input, CancellationToken cancellationToken);
-}
+namespace Workflow.Studio.Plugins.BuiltIn;
 
 public sealed class UppercaseTransformPlugin : IWorkflowPlugin, ITextTransformPlugin
 {

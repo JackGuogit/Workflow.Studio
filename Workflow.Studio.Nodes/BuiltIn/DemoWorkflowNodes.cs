@@ -1,8 +1,9 @@
 using Workflow.Studio.Core.Models;
-using Workflow.Studio.Core.Plugins.BuiltIn;
+using Workflow.Studio.Core.Plugins;
+using Workflow.Studio.Core.Nodes;
 using CoreExecutionContext = Workflow.Studio.Core.Runtime.ExecutionContext;
 
-namespace Workflow.Studio.Core.Nodes.BuiltIn;
+namespace Workflow.Studio.Nodes.BuiltIn;
 
 public sealed class TextSourceNode : IWorkflowNodeDefinition
 {
@@ -42,13 +43,13 @@ public sealed class TextSourceNode : IWorkflowNodeDefinition
         CoreExecutionContext executionContext,
         CancellationToken cancellationToken)
     {
-        executionContext.GlobalVariables.TryGetValue("SeedText", out var seedText);
+        executionContext.GlobalVariables.TryGetValue("GlobalVariablesSeedText", out var seedText);
 
         var text = request.Node.Parameters.TryGetValue("text", out var configuredText)
             ? Convert.ToString(configuredText)
             : Convert.ToString(seedText);
 
-        await Task.Delay(5000, cancellationToken); // 模拟异步操作
+        await Task.Delay(5000, cancellationToken);
 
         var result = new NodeExecutionResult
         {
@@ -110,7 +111,7 @@ public sealed class UppercaseTransformNode : IWorkflowNodeDefinition
         {
             Message = "转换节点已完成大写处理。"
         };
-        await Task.Delay(2000, cancellationToken); // 模拟异步操作
+        await Task.Delay(2000, cancellationToken);
         result.OutputValues["result"] = transformed;
         result.GlobalVariables["LastTransform"] = transformed;
         return result;
@@ -167,7 +168,7 @@ public sealed class PreviewNode : IWorkflowNodeDefinition
         {
             Message = "预览节点已生成预览内容。"
         };
-        await Task.Delay(2000, cancellationToken); // 模拟异步操作
+        await Task.Delay(2000, cancellationToken);
         result.OutputValues["preview-text"] = preview;
         result.GlobalVariables["LastPreview"] = preview;
         return result;

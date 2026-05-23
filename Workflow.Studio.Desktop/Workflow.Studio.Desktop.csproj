@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -19,6 +19,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Workflow.Studio.Core\Workflow.Studio.Core.csproj" />
+    <ProjectReference Include="..\Workflow.Studio.Nodes\Workflow.Studio.Nodes.csproj" />
+    <ProjectReference Include="..\Workflow.Studio.Plugins\Workflow.Studio.Plugins.csproj" />
     <ProjectReference Include="..\Workflow.Studio.Workbench\Workflow.Studio.Workbench.csproj" />
   </ItemGroup>
 

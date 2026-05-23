@@ -249,7 +249,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     private WorkflowData CreateDemoWorkflow()
     {
         var workflow = new WorkflowData();
-        workflow.GlobalVariables["SeedText"] = "DevWorkflow Studio";
+        workflow.GlobalVariables["GlobalVariablesSeedText"] = "DevWorkflow Studio";
 
         var sourceNode = _nodeFactory.CreateNode("demo.node.text-source", 80, 120, "node-source");
         var transformNode = _nodeFactory.CreateNode("demo.node.uppercase-transform", 420, 120, "node-transform");

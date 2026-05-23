@@ -14,3 +14,13 @@ public interface IWorkflowPlugin : IAsyncDisposable
         PluginInitializationContext context,
         CancellationToken cancellationToken);
 }
+
+public interface ITextTransformPlugin
+{
+    ValueTask<string> TransformToUppercaseAsync(string input, CancellationToken cancellationToken);
+}
+
+public interface IPreviewPlugin
+{
+    ValueTask<string> BuildPreviewAsync(string input, CancellationToken cancellationToken);
+}

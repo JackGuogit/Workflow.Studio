@@ -1,9 +1,9 @@
 using Autofac;
 using Workflow.Studio.Desktop.ViewModels;
-using Workflow.Studio.Core.Nodes.BuiltIn;
 using Workflow.Studio.Core.Plugins;
-using Workflow.Studio.Core.Plugins.BuiltIn;
 using Workflow.Studio.Core.Services;
+using Workflow.Studio.Nodes.BuiltIn;
+using Workflow.Studio.Plugins.BuiltIn;
 using Workflow.Studio.Workbench.ViewModels;
 
 namespace Workflow.Studio.Desktop;
