@@ -60,6 +60,12 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     public IRelayCommand<NodeLibraryItemViewModel?> AddNodeCommand { get; }
 
+    public void UpdateNodeParameters(NodeViewModel node, IReadOnlyDictionary<string, object?> parameters)
+    {
+        node.UpdateParameters(parameters);
+        StatusMessage = $"已更新节点参数: {node.Title}";
+    }
+
     public void Connect(PortViewModel source, PortViewModel target)
     {
         if (!CanConnect(source, target))

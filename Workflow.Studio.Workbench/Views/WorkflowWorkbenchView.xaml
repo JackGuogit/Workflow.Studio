@@ -253,7 +253,15 @@
                     <TextBlock Margin="0 10 0 0"
                                Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
                                Text="{Binding PortSummary}" />
+                    <TextBlock Margin="0 8 0 0"
+                               Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
+                               Text="{Binding ParameterCount, StringFormat=参数: {0}}" />
                     <TextBlock Margin="0 4 0 0"
+                               FontFamily="Consolas"
+                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                               Text="{Binding ParameterSummary}"
+                               TextWrapping="Wrap" />
+                    <TextBlock Margin="0 8 0 0"
                                FontFamily="Consolas"
                                Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
                                Text="{Binding PreviewText}"
@@ -428,6 +436,11 @@
                                                 <TextBlock Margin="0 10 0 0"
                                                            FontFamily="Consolas"
                                                            Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                                           Text="{Binding ParameterSummary}"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Margin="0 10 0 0"
+                                                           FontFamily="Consolas"
+                                                           Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
                                                            Text="{Binding PreviewText}"
                                                            TextWrapping="Wrap" />
                                             </StackPanel>
@@ -485,6 +498,7 @@
                                          FooterTemplate="{StaticResource CanvasNodeFooterTemplate}"
                                          Input="{Binding InputPorts}"
                                          Output="{Binding OutputPorts}"
+                                         MouseDoubleClick="Node_MouseDoubleClick"
                                          ToolTipService.ShowDuration="60000">
                                 <nodify:Node.ToolTip>
                                     <ToolTip Content="{Binding}"
@@ -529,7 +543,7 @@
                                    Text="Graph Editor" />
                         <TextBlock Margin="0 6 0 0"
                                    Foreground="#CBD5E1"
-                                   Text="拖拽节点调整布局，拖动连接点创建连线。" />
+                                   Text="拖拽节点调整布局，拖动连接点创建连线，双击节点编辑参数。" />
                         <TextBlock Margin="0 4 0 0"
                                    Foreground="#94A3B8"
                                    Text="{Binding StatusMessage}"
