@@ -303,7 +303,6 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
                 <StackPanel>
@@ -346,42 +345,60 @@
                         <TextBlock DockPanel.Dock="Top"
                                    Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
                                    Text="节点库" />
+                        <TextBlock DockPanel.Dock="Top"
+                                   Margin="0 8 0 0"
+                                   Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                   Text="拖拽方块到右侧画布即可创建节点。" />
                         <ScrollViewer Margin="0 12 0 0"
                                       VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding AvailableNodes}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:NodeLibraryItemViewModel}">
-                                        <Border Margin="0 0 0 10"
-                                                Padding="12"
-                                                Style="{StaticResource WorkflowWorkbench.SidebarCardStyle}">
+                                        <Border Width="70"
+                                                Height="70"
+                                                Margin="0 0 6 6"
+                                                Padding="6"
+                                                Cursor="Hand"
+                                                MouseLeftButtonDown="LibraryNode_PreviewMouseLeftButtonDown"
+                                                MouseLeftButtonUp="LibraryNode_PreviewMouseLeftButtonUp"
+                                                MouseMove="LibraryNode_PreviewMouseMove"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
+                                                Style="{StaticResource WorkflowWorkbench.SidebarCardStyle}"
+                                                ToolTip="{Binding Description}">
                                             <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel>
-                                                    <TextBlock FontWeight="SemiBold"
-                                                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
-                                                               Text="{Binding DisplayName}" />
-                                                    <TextBlock Margin="0 4 0 0"
-                                                               Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
-                                                               Text="{Binding Category}" />
-                                                    <TextBlock Margin="0 4 0 0"
-                                                               Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
-                                                               Text="{Binding Description}"
-                                                               TextWrapping="Wrap" />
-                                                </StackPanel>
-                                                <Button Grid.Column="1"
-                                                        Width="72"
-                                                        Height="32"
-                                                        Margin="12 0 0 0"
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="*" />
+                                                </Grid.RowDefinitions>
+                                                <Border Width="24"
+                                                        Height="24"
+                                                        HorizontalAlignment="Center"
                                                         Background="{StaticResource WorkflowWorkbench.AccentSoftBrush}"
-                                                        BorderBrush="{StaticResource WorkflowWorkbench.AccentBrush}"
-                                                        Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
-                                                        VerticalAlignment="Center"
-                                                        Command="{Binding DataContext.AddNodeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Content="添加" />
+                                                        CornerRadius="8">
+                                                    <TextBlock HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               FontSize="8"
+                                                               FontWeight="Bold"
+                                                               Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
+                                                               Text="N" />
+                                                </Border>
+                                                <TextBlock Grid.Row="1"
+                                                           Margin="0 6 0 0"
+                                                           VerticalAlignment="Center"
+                                                           FontSize="10"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                                           Text="{Binding DisplayName}"
+                                                           TextAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="Wrap"
+                                                           MaxHeight="26" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -406,51 +423,6 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="4"
-                        Margin="0 20 0 0"
-                        Padding="14"
-                        Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
-                    <DockPanel>
-                        <TextBlock DockPanel.Dock="Top"
-                                   Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
-                                   Text="Nodes" />
-                        <ScrollViewer Margin="0 12 0 0"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Nodes}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:NodeViewModel}">
-                                        <Border Margin="0 0 0 10"
-                                                Padding="12"
-                                                Style="{StaticResource WorkflowWorkbench.SidebarCardStyle}">
-                                            <StackPanel>
-                                                <ContentPresenter Content="{Binding}"
-                                                                  ContentTemplate="{StaticResource NodeHeaderTemplate}" />
-                                                <TextBlock Margin="0 10 0 0"
-                                                           Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
-                                                           Text="{Binding Description}"
-                                                           TextWrapping="Wrap" />
-                                                <TextBlock Margin="0 10 0 0"
-                                                           Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
-                                                           Text="{Binding NodeTypeText}"
-                                                           TextWrapping="Wrap" />
-                                                <TextBlock Margin="0 10 0 0"
-                                                           FontFamily="Consolas"
-                                                           Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
-                                                           Text="{Binding SettingsSummary}"
-                                                           TextWrapping="Wrap" />
-                                                <TextBlock Margin="0 10 0 0"
-                                                           FontFamily="Consolas"
-                                                           Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
-                                                           Text="{Binding PreviewText}"
-                                                           TextWrapping="Wrap" />
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </DockPanel>
-                </Border>
             </Grid>
         </Border>
 
@@ -467,7 +439,11 @@
                            IsHitTestVisible="False"
                            Opacity="0.8" />
 
-                <nodify:NodifyEditor Style="{StaticResource WorkflowWorkbench.EditorStyle}"
+                <nodify:NodifyEditor x:Name="Editor"
+                                     AllowDrop="True"
+                                     DragOver="Editor_DragOver"
+                                     Drop="Editor_Drop"
+                                     Style="{StaticResource WorkflowWorkbench.EditorStyle}"
                                      ItemsSource="{Binding Nodes}"
                                      Connections="{Binding Connections}"
                                      PendingConnection="{Binding PendingConnection}">

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Windows;
 using Workflow.Studio.Core.Models;
 using Workflow.Studio.Core.Nodes;
 using Workflow.Studio.Core.Services;
@@ -94,10 +95,14 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
             return;
         }
 
-        var index = _workflow.Nodes.Count;
-        var x = 120 + (index % 3) * 320;
-        var y = 280 + (index / 3) * 220;
-        var node = _nodeFactory.CreateNode(item.NodeTypeId, x, y);
+        AddNode(item, GetDefaultNodeLocation());
+    }
+
+    public void AddNode(NodeLibraryItemViewModel item, Point location)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+
+        var node = _nodeFactory.CreateNode(item.NodeTypeId, location.X, location.Y);
         _workflow.AddNode(node);
 
         var viewModel = new NodeViewModel(node);
@@ -208,6 +213,14 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
                 && string.Equals(connection.Source.Id, source.Id, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(connection.Target.Owner.Id, target.Owner.Id, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(connection.Target.Id, target.Id, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private Point GetDefaultNodeLocation()
+    {
+        var index = _workflow.Nodes.Count;
+        var x = 120 + (index % 3) * 320;
+        var y = 280 + (index / 3) * 220;
+        return new Point(x, y);
     }
 
     private void ApplyConnectionState()
