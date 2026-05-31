@@ -290,7 +290,9 @@
 
     <Grid Background="{StaticResource WorkflowWorkbench.PageBackgroundBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="360" />
+            <ColumnDefinition Width="360"
+                              MinWidth="280" />
+            <ColumnDefinition Width="8" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -301,8 +303,9 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" MinHeight="180" />
+                    <RowDefinition Height="8" />
+                    <RowDefinition Height="220" MinHeight="120" />
                 </Grid.RowDefinitions>
 
                 <StackPanel>
@@ -408,25 +411,46 @@
                     </DockPanel>
                 </Border>
 
-                <Border Grid.Row="3"
+                <GridSplitter Grid.Row="3"
+                              Margin="0 12"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Center"
+                              Background="{StaticResource WorkflowWorkbench.PanelBorderBrush}"
+                              ResizeDirection="Rows"
+                              ResizeBehavior="PreviousAndNext"
+                              ShowsPreview="True" />
+
+                <Border Grid.Row="4"
                         Margin="0 20 0 0"
                         Padding="14"
                         Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
+                    <DockPanel LastChildFill="True">
+                        <TextBlock DockPanel.Dock="Top"
+                                   Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
                                    Text="Global Variables" />
-                        <TextBlock Margin="0 8 0 0"
-                                   FontFamily="Consolas"
-                                   Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
-                                   Text="{Binding GlobalVariablesText}"
-                                   TextWrapping="Wrap" />
-                    </StackPanel>
+                        <ScrollViewer Margin="0 8 0 0"
+                                      VerticalScrollBarVisibility="Auto">
+                            <TextBlock FontFamily="Consolas"
+                                       Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                       Text="{Binding GlobalVariablesText}"
+                                       TextWrapping="Wrap" />
+                        </ScrollViewer>
+                    </DockPanel>
                 </Border>
 
             </Grid>
         </Border>
 
-        <Border Grid.Column="1"
+        <GridSplitter Grid.Column="1"
+                      Margin="0 16"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      Background="{StaticResource WorkflowWorkbench.PanelBorderBrush}"
+                      ResizeDirection="Columns"
+                      ResizeBehavior="PreviousAndNext"
+                      ShowsPreview="True" />
+
+        <Border Grid.Column="2"
                 Margin="0 16 16 16"
                 Background="{StaticResource WorkflowWorkbench.CanvasOverlayBrush}"
                 CornerRadius="18">
