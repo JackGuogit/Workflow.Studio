@@ -23,6 +23,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     private string _globalVariablesText = "尚未执行";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(WorkflowStateText))]
     [NotifyCanExecuteChangedFor(nameof(ExecuteWorkflowCommand))]
     private bool _isBusy;
 
@@ -61,6 +62,10 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     public IRelayCommand<NodeLibraryItemViewModel?> AddNodeCommand { get; }
 
+    public string WorkflowStateText => IsBusy ? "运行中" : "就绪";
+
+    public string WorkflowGraphSummary => $"节点 {Nodes.Count} · 连线 {Connections.Count}";
+
     public void NotifyNodeSettingsChanged(NodeViewModel node)
     {
         node.NotifySettingsChanged();
@@ -85,6 +90,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         Connections.Add(connectionViewModel);
         source.AttachConnection(connectionViewModel);
         target.AttachConnection(connectionViewModel);
+        NotifyToolbarStateChanged();
         StatusMessage = $"已连接 {source.Owner.Title}.{source.Title} -> {target.Owner.Title}.{target.Title}";
     }
 
@@ -108,6 +114,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         var viewModel = new NodeViewModel(node);
         Nodes.Add(viewModel);
         _nodeIndex[node.Metadata.Id] = viewModel;
+        NotifyToolbarStateChanged();
         StatusMessage = $"已添加节点: {item.DisplayName}";
     }
 
@@ -201,6 +208,13 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
                 target.AttachConnection(connectionViewModel);
             }
         }
+
+        NotifyToolbarStateChanged();
+    }
+
+    private void NotifyToolbarStateChanged()
+    {
+        OnPropertyChanged(nameof(WorkflowGraphSummary));
     }
 
     private bool CanConnect(PortViewModel source, PortViewModel target)
