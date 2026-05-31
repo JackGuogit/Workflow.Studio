@@ -40,8 +40,11 @@ public sealed class ApplicationModule : Module
             {
                 var nodeManager = new NodeManager();
                 nodeManager.RegisterType(new TextSourceNode());
+                nodeManager.RegisterType(new CsvReadNode());
                 nodeManager.RegisterType(new UppercaseTransformNode(_.Resolve<ITextTransformPlugin>()));
+                nodeManager.RegisterType(new CsvToTsvTransformNode());
                 nodeManager.RegisterType(new PreviewNode(_.Resolve<IPreviewPlugin>()));
+                nodeManager.RegisterType(new TsvSaveNode());
                 return nodeManager;
             })
             .SingleInstance();
