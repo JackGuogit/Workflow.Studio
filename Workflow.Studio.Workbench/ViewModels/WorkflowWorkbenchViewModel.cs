@@ -252,7 +252,10 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
             IsBusy = true;
             StatusMessage = "正在执行工作流图...";
 
-            var context = await _workflowEngine.ExecuteAsync(_workflow);
+            // Offload workflow execution so synchronous work inside nodes does not block the UI thread.
+            var context = await Task.Run(
+                () => _workflowEngine.ExecuteAsync(_workflow),
+                CancellationToken.None);
             RefreshGraphVisualState();
 
             GlobalVariablesText = context.GlobalVariables.Count == 0
