@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Threading;
 using System.Windows;
 using Workflow.Studio.Core.Models;
 using Workflow.Studio.Core.Nodes;
@@ -13,6 +14,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     private readonly WorkflowEngine _workflowEngine;
     private readonly NodeFactory _nodeFactory;
     private readonly WorkflowEventHub _eventHub;
+    private readonly SemaphoreSlim _executionGate = new(1, 1);
     private readonly Dictionary<string, NodeViewModel> _nodeIndex = new(StringComparer.OrdinalIgnoreCase);
     private WorkflowData _workflow;
 
@@ -41,7 +43,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
             _nodeFactory.GetAvailableNodes().Select(descriptor => new NodeLibraryItemViewModel(descriptor)));
         PendingConnection = new PendingConnectionViewModel(this);
         ExecuteWorkflowCommand = new AsyncRelayCommand(ExecuteWorkflowAsync, CanExecuteWorkflow);
-        ResetWorkflowCommand = new RelayCommand(ResetWorkflow);
+        ResetWorkflowCommand = new RelayCommand(ResetWorkflow, CanResetWorkflow);
         AddNodeCommand = new RelayCommand<NodeLibraryItemViewModel?>(AddNode);
 
         _workflow = CreateDemoWorkflow();
@@ -123,10 +125,24 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         return !IsBusy;
     }
 
+    private bool CanResetWorkflow()
+    {
+        return !IsBusy;
+    }
+
     private async Task ExecuteWorkflowAsync()
     {
+        var enteredExecutionGate = false;
+
         try
         {
+            enteredExecutionGate = await _executionGate.WaitAsync(0);
+            if (!enteredExecutionGate)
+            {
+                StatusMessage = "执行引擎正在运行，请稍候。";
+                return;
+            }
+
             IsBusy = true;
             StatusMessage = "正在执行工作流图...";
 
@@ -153,7 +169,11 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         }
         finally
         {
-            IsBusy = false;
+            if (enteredExecutionGate)
+            {
+                IsBusy = false;
+                _executionGate.Release();
+            }
         }
     }
 
@@ -217,6 +237,11 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         OnPropertyChanged(nameof(WorkflowGraphSummary));
     }
 
+    partial void OnIsBusyChanged(bool value)
+    {
+        ResetWorkflowCommand.NotifyCanExecuteChanged();
+    }
+
     private bool CanConnect(PortViewModel source, PortViewModel target)
     {
         return source.Direction == PortDirection.Output
@@ -264,6 +289,12 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     private void OnNodeStatusChanged(object? sender, NodeStatusChangedEventArgs e)
     {
+        if (Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            _ = dispatcher.InvokeAsync(() => OnNodeStatusChanged(sender, e));
+            return;
+        }
+
         if (_nodeIndex.TryGetValue(e.NodeId, out var node))
         {
             node.Refresh();
@@ -272,6 +303,12 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     private void OnPortValueChanged(object? sender, PortValueChangedEventArgs e)
     {
+        if (Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            _ = dispatcher.InvokeAsync(() => OnPortValueChanged(sender, e));
+            return;
+        }
+
         if (_nodeIndex.TryGetValue(e.NodeId, out var node))
         {
             node.FindPort(e.PortId)?.Refresh();

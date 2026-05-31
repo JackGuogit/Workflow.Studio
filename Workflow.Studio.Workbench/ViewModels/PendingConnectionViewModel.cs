@@ -4,12 +4,10 @@ namespace Workflow.Studio.Workbench.ViewModels;
 
 public sealed class PendingConnectionViewModel
 {
-    private readonly WorkflowWorkbenchViewModel _workbench;
     private PortViewModel? _source;
 
     public PendingConnectionViewModel(WorkflowWorkbenchViewModel workbench)
     {
-        _workbench = workbench;
         StartCommand = new RelayCommand<PortViewModel?>(source => _source = source);
         FinishCommand = new RelayCommand<PortViewModel?>(target =>
         {
@@ -18,7 +16,7 @@ public sealed class PendingConnectionViewModel
                 return;
             }
 
-            _workbench.Connect(_source, target);
+            workbench.Connect(_source, target);
             _source = null;
         });
     }

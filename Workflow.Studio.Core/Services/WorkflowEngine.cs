@@ -9,6 +9,7 @@ public sealed class WorkflowEngine
     private readonly PluginManager _pluginManager;
     private readonly NodeManager _nodeManager;
     private readonly WorkflowEventHub _eventHub;
+    private readonly SemaphoreSlim _executionGate = new(1, 1);
 
     public WorkflowEngine(PluginManager pluginManager, NodeManager nodeManager, WorkflowEventHub eventHub)
     {
@@ -25,26 +26,44 @@ public sealed class WorkflowEngine
     {
         ArgumentNullException.ThrowIfNull(workflow);
 
-        _nodeManager.AttachWorkflow(workflow);
-        ResetWorkflowState(workflow);
-        await _pluginManager.InitializeAsync(cancellationToken);
+        var enteredExecutionGate = false;
 
-        var context = new CoreExecutionContext(workflow.GlobalVariables);
-        var executionBatches = BuildExecutionBatches(workflow);
-
-        foreach (var batch in executionBatches)
+        try
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            enteredExecutionGate = await _executionGate.WaitAsync(0, cancellationToken);
+            if (!enteredExecutionGate)
+            {
+                throw new InvalidOperationException("Workflow engine is already executing another workflow.");
+            }
 
-            var batchTasks = batch
-                .Select(node => ExecuteNodeAsync(workflow, node, context, cancellationToken))
-                .ToArray();
+            _nodeManager.AttachWorkflow(workflow);
+            ResetWorkflowState(workflow);
+            await _pluginManager.InitializeAsync(cancellationToken);
 
-            await Task.WhenAll(batchTasks);
+            var context = new CoreExecutionContext(workflow.GlobalVariables);
+            var executionBatches = BuildExecutionBatches(workflow);
+
+            foreach (var batch in executionBatches)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var batchTasks = batch
+                    .Select(node => ExecuteNodeAsync(workflow, node, context, cancellationToken))
+                    .ToArray();
+
+                await Task.WhenAll(batchTasks);
+            }
+
+            SyncGlobalVariables(workflow, context);
+            return context;
         }
-
-        SyncGlobalVariables(workflow, context);
-        return context;
+        finally
+        {
+            if (enteredExecutionGate)
+            {
+                _executionGate.Release();
+            }
+        }
     }
 
     public IReadOnlyList<NodeData> BuildExecutionPlan(WorkflowData workflow)

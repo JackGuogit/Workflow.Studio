@@ -59,6 +59,13 @@
                         Value="{StaticResource WorkflowWorkbench.SubtleBackgroundBrush}" />
                 <Setter Property="BorderBrush"
                         Value="{StaticResource WorkflowWorkbench.PanelBorderBrush}" />
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled"
+                             Value="False">
+                        <Setter Property="Opacity"
+                                Value="0.55" />
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
             <Style x:Key="WorkbenchPrimaryToolbarButtonStyle"
