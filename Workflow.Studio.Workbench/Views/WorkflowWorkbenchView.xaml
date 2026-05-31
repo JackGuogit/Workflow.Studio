@@ -11,10 +11,6 @@
              d:DesignWidth="1440">
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Workflow.Studio.Theme;component/Themes/WorkflowWorkbench.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-
             <Style x:Key="WorkbenchItemContainerStyle"
                    TargetType="{x:Type nodify:ItemContainer}"
                    BasedOn="{StaticResource WorkflowWorkbench.ItemContainerStyle}">
@@ -28,7 +24,7 @@
                 <Setter Property="Margin"
                         Value="0 0 6 6" />
                 <Setter Property="Background"
-                        Value="{StaticResource WorkflowWorkbench.SubtleBackgroundBrush}" />
+                        Value="{DynamicResource WorkflowWorkbench.SubtleBackgroundBrush}" />
             </Style>
 
             <Style x:Key="CanvasNodeIndicatorDotStyle"
@@ -40,7 +36,7 @@
                 <Setter Property="Margin"
                         Value="0 0 4 0" />
                 <Setter Property="Fill"
-                        Value="#D1D5DB" />
+                        Value="{DynamicResource WorkflowWorkbench.NodeIndicatorMutedBrush}" />
             </Style>
 
             <Style x:Key="WorkbenchToolbarButtonStyle"
@@ -54,11 +50,11 @@
                 <Setter Property="FontWeight"
                         Value="SemiBold" />
                 <Setter Property="Foreground"
-                        Value="{StaticResource WorkflowWorkbench.TextBrush}" />
+                        Value="{DynamicResource WorkflowWorkbench.TextBrush}" />
                 <Setter Property="Background"
-                        Value="{StaticResource WorkflowWorkbench.SubtleBackgroundBrush}" />
+                        Value="{DynamicResource WorkflowWorkbench.SubtleBackgroundBrush}" />
                 <Setter Property="BorderBrush"
-                        Value="{StaticResource WorkflowWorkbench.PanelBorderBrush}" />
+                        Value="{DynamicResource WorkflowWorkbench.PanelBorderBrush}" />
                 <Style.Triggers>
                     <Trigger Property="IsEnabled"
                              Value="False">
@@ -74,9 +70,9 @@
                 <Setter Property="Foreground"
                         Value="White" />
                 <Setter Property="Background"
-                        Value="{StaticResource WorkflowWorkbench.AccentBrush}" />
+                        Value="{DynamicResource WorkflowWorkbench.AccentBrush}" />
                 <Setter Property="BorderBrush"
-                        Value="{StaticResource WorkflowWorkbench.AccentBrush}" />
+                        Value="{DynamicResource WorkflowWorkbench.AccentBrush}" />
             </Style>
 
             <Style x:Key="WorkbenchStatusBadgeStyle"
@@ -86,12 +82,12 @@
                 <Setter Property="CornerRadius"
                         Value="999" />
                 <Setter Property="Background"
-                        Value="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}" />
+                        Value="{DynamicResource WorkflowWorkbench.SecondaryAccentBrush}" />
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                  Value="True">
                         <Setter Property="Background"
-                                Value="{StaticResource WorkflowWorkbench.WarningSoftBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.WarningSoftBrush}" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
@@ -103,12 +99,12 @@
                 <Setter Property="FontWeight"
                         Value="SemiBold" />
                 <Setter Property="Foreground"
-                        Value="{StaticResource WorkflowWorkbench.SecondaryAccentTextBrush}" />
+                        Value="{DynamicResource WorkflowWorkbench.SecondaryAccentTextBrush}" />
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                  Value="True">
                         <Setter Property="Foreground"
-                                Value="{StaticResource WorkflowWorkbench.WarningBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.WarningBrush}" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
@@ -118,10 +114,10 @@
                 <Border Style="{StaticResource WorkbenchPortGroupChipStyle}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontWeight="SemiBold"
-                                   Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                   Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
                                    Text="{Binding Name}" />
                         <TextBlock Margin="6 0 0 0"
-                                   Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                   Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                                    Text="{Binding Summary}" />
                     </StackPanel>
                 </Border>
@@ -134,21 +130,21 @@
                             DockPanel.Dock="Right"
                             Margin="8 0 0 0"
                             Padding="8 3"
-                            Background="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}"
+                            Background="{DynamicResource WorkflowWorkbench.SecondaryAccentBrush}"
                             CornerRadius="999">
                         <TextBlock x:Name="StatusTextBlock"
                                    FontSize="10"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource WorkflowWorkbench.SecondaryAccentTextBrush}"
+                                   Foreground="{DynamicResource WorkflowWorkbench.SecondaryAccentTextBrush}"
                                    Text="{Binding StatusText}" />
                     </Border>
                     <StackPanel>
                         <TextBlock FontSize="16"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                   Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
                                    Text="{Binding Title}" />
                         <TextBlock Margin="0 4 0 0"
-                                   Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                   Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                                    Text="{Binding Category}" />
                     </StackPanel>
                 </DockPanel>
@@ -157,37 +153,37 @@
                                  Value="{x:Static models:NodeStatus.Ready}">
                         <Setter TargetName="StatusBadge"
                                 Property="Background"
-                                Value="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.SecondaryAccentBrush}" />
                         <Setter TargetName="StatusTextBlock"
                                 Property="Foreground"
-                                Value="{StaticResource WorkflowWorkbench.SecondaryAccentTextBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.SecondaryAccentTextBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}"
                                  Value="{x:Static models:NodeStatus.Running}">
                         <Setter TargetName="StatusBadge"
                                 Property="Background"
-                                Value="{StaticResource WorkflowWorkbench.WarningSoftBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.WarningSoftBrush}" />
                         <Setter TargetName="StatusTextBlock"
                                 Property="Foreground"
-                                Value="{StaticResource WorkflowWorkbench.WarningBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.WarningBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}"
                                  Value="{x:Static models:NodeStatus.Success}">
                         <Setter TargetName="StatusBadge"
                                 Property="Background"
-                                Value="{StaticResource WorkflowWorkbench.SuccessSoftBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.SuccessSoftBrush}" />
                         <Setter TargetName="StatusTextBlock"
                                 Property="Foreground"
-                                Value="{StaticResource WorkflowWorkbench.SuccessBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.SuccessBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}"
                                  Value="{x:Static models:NodeStatus.Failed}">
                         <Setter TargetName="StatusBadge"
                                 Property="Background"
-                                Value="{StaticResource WorkflowWorkbench.ErrorSoftBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.ErrorSoftBrush}" />
                         <Setter TargetName="StatusTextBlock"
                                 Property="Foreground"
-                                Value="{StaticResource WorkflowWorkbench.ErrorBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.ErrorBrush}" />
                     </DataTrigger>
                 </DataTemplate.Triggers>
             </DataTemplate>
@@ -197,7 +193,7 @@
                 <Border x:Name="NodeGlyphContainer"
                         Width="56"
                         Height="56"
-                        Background="{StaticResource WorkflowWorkbench.AccentBrush}"
+                        Background="{DynamicResource WorkflowWorkbench.AccentBrush}"
                         CornerRadius="10">
                     <Grid>
                         <!-- TODO: replace with proper icon if available, using text for now -->
@@ -249,8 +245,8 @@
                 <Border Margin="0 4 0 0"
                         Padding="8 4"
                         HorizontalAlignment="Center"
-                        Background="{StaticResource WorkflowWorkbench.SubtleBackgroundBrush}"
-                        BorderBrush="{StaticResource WorkflowWorkbench.PanelBorderBrush}"
+                        Background="{DynamicResource WorkflowWorkbench.SubtleBackgroundBrush}"
+                        BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
                     <StackPanel Orientation="Horizontal">
@@ -267,37 +263,37 @@
                                  Value="{x:Static models:NodeStatus.Ready}">
                         <Setter TargetName="NodeStateDot"
                                 Property="Fill"
-                                Value="{StaticResource WorkflowWorkbench.SecondaryAccentBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.SecondaryAccentBrush}" />
                         <Setter TargetName="NodeOutputDot"
                                 Property="Fill"
-                                Value="#D1D5DB" />
+                                Value="{DynamicResource WorkflowWorkbench.NodeIndicatorMutedBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}"
                                  Value="{x:Static models:NodeStatus.Running}">
                         <Setter TargetName="NodeStateDot"
                                 Property="Fill"
-                                Value="{StaticResource WorkflowWorkbench.WarningBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.WarningBrush}" />
                         <Setter TargetName="NodeOutputDot"
                                 Property="Fill"
-                                Value="{StaticResource WorkflowWorkbench.WarningSoftBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.WarningSoftBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}"
                                  Value="{x:Static models:NodeStatus.Success}">
                         <Setter TargetName="NodeStateDot"
                                 Property="Fill"
-                                Value="{StaticResource WorkflowWorkbench.SuccessBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.SuccessBrush}" />
                         <Setter TargetName="NodeOutputDot"
                                 Property="Fill"
-                                Value="{StaticResource WorkflowWorkbench.SuccessSoftBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.SuccessSoftBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}"
                                  Value="{x:Static models:NodeStatus.Failed}">
                         <Setter TargetName="NodeStateDot"
                                 Property="Fill"
-                                Value="{StaticResource WorkflowWorkbench.ErrorBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.ErrorBrush}" />
                         <Setter TargetName="NodeOutputDot"
                                 Property="Fill"
-                                Value="{StaticResource WorkflowWorkbench.ErrorSoftBrush}" />
+                                Value="{DynamicResource WorkflowWorkbench.ErrorSoftBrush}" />
                     </DataTrigger>
                 </DataTemplate.Triggers>
             </DataTemplate>
@@ -306,17 +302,17 @@
                           DataType="{x:Type viewModels:NodeViewModel}">
                 <StackPanel MaxWidth="320">
                     <TextBlock FontWeight="SemiBold"
-                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                               Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
                                Text="{Binding Title}" />
                     <TextBlock Margin="0 4 0 0"
-                               Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                               Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                                Text="{Binding Description}"
                                TextWrapping="Wrap" />
                     <Border Margin="0 10 0 0"
                             Padding="10"
-                            Background="{StaticResource WorkflowWorkbench.AccentSoftBrush}"
+                            Background="{DynamicResource WorkflowWorkbench.AccentSoftBrush}"
                             CornerRadius="10">
-                        <TextBlock Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
+                        <TextBlock Foreground="{DynamicResource WorkflowWorkbench.AccentBrush}"
                                    Text="{Binding NodeTypeText}"
                                    TextWrapping="Wrap" />
                     </Border>
@@ -328,12 +324,12 @@
                                Text="{Binding SettingsCount, StringFormat=设置项: {0}}" />
                     <TextBlock Margin="0 4 0 0"
                                FontFamily="Consolas"
-                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                               Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
                                Text="{Binding SettingsSummary}"
                                TextWrapping="Wrap" />
                     <TextBlock Margin="0 8 0 0"
                                FontFamily="Consolas"
-                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                               Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
                                Text="{Binding PreviewText}"
                                TextWrapping="Wrap" />
                 </StackPanel>
@@ -358,7 +354,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Background="{StaticResource WorkflowWorkbench.PageBackgroundBrush}">
+    <Grid Background="{DynamicResource WorkflowWorkbench.PageBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -367,8 +363,8 @@
         <Border Grid.Row="0"
                 Margin="16 16 16 0"
                 Padding="12 10"
-                Background="{StaticResource WorkflowWorkbench.PanelBackgroundBrush}"
-                BorderBrush="{StaticResource WorkflowWorkbench.PanelBorderBrush}"
+                Background="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}"
+                BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="16">
             <Grid MinHeight="56">
@@ -396,17 +392,33 @@
                             VerticalAlignment="Center">
                     <Border Padding="10 4"
                             HorizontalAlignment="Left"
-                            Background="{StaticResource WorkflowWorkbench.AccentSoftBrush}"
+                            Background="{DynamicResource WorkflowWorkbench.AccentSoftBrush}"
                             CornerRadius="999">
                         <TextBlock FontSize="12"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
+                                   Foreground="{DynamicResource WorkflowWorkbench.AccentBrush}"
                                    Text="工作流控制台" />
                     </Border>
                     <TextBlock Margin="0 8 0 0"
-                               Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                               Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                                Text="在顶部快速执行工作流、重置状态，并实时查看当前图状态。" />
                 </StackPanel>
+
+                <Button Grid.Column="2"
+                        Margin="0 0 12 0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource WorkbenchToolbarButtonStyle}"
+                        Command="{Binding ToggleThemeCommand}"
+                        ToolTip="{Binding CurrentThemeText, StringFormat=切换主题，当前：{0}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ContentPresenter Margin="0 0 8 0"
+                                          Content="{StaticResource ThemeIcon}" />
+                        <TextBlock VerticalAlignment="Center"
+                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                   Text="{Binding CurrentThemeText}" />
+                    </StackPanel>
+                </Button>
 
                 <Border Grid.Column="3"
                         VerticalAlignment="Center"
@@ -414,16 +426,16 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Margin="0 0 8 0"
-                                       Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                       Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                                        Text="运行状态" />
                             <TextBlock Style="{StaticResource WorkbenchStatusTextStyle}"
                                        Text="{Binding WorkflowStateText}" />
                             <TextBlock Margin="8 0 0 0"
-                                       Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                       Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                                        Text="{Binding WorkflowGraphSummary}" />
                         </StackPanel>
                         <TextBlock Margin="0 4 0 0"
-                                   Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                   Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
                                    Text="{Binding StatusMessage}"
                                    TextWrapping="Wrap" />
                     </StackPanel>
@@ -459,7 +471,7 @@
                                        Text="节点库" />
                             <TextBlock DockPanel.Dock="Top"
                                        Margin="0 8 0 0"
-                                       Foreground="{StaticResource WorkflowWorkbench.SubtleTextBrush}"
+                                       Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                                        Text="拖拽方块到右侧画布即可创建节点。" />
                             <ScrollViewer Margin="0 12 0 0"
                                           VerticalScrollBarVisibility="Auto">
@@ -491,13 +503,13 @@
                                                     <Border Width="24"
                                                             Height="24"
                                                             HorizontalAlignment="Center"
-                                                            Background="{StaticResource WorkflowWorkbench.AccentSoftBrush}"
+                                                            Background="{DynamicResource WorkflowWorkbench.AccentSoftBrush}"
                                                             CornerRadius="8">
                                                         <TextBlock HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"
                                                                    FontSize="8"
                                                                    FontWeight="Bold"
-                                                                   Foreground="{StaticResource WorkflowWorkbench.AccentBrush}"
+                                                                   Foreground="{DynamicResource WorkflowWorkbench.AccentBrush}"
                                                                    Text="N" />
                                                     </Border>
                                                     <TextBlock Grid.Row="1"
@@ -505,7 +517,7 @@
                                                                VerticalAlignment="Center"
                                                                FontSize="10"
                                                                FontWeight="SemiBold"
-                                                               Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                                               Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
                                                                Text="{Binding DisplayName}"
                                                                TextAlignment="Center"
                                                                TextTrimming="CharacterEllipsis"
@@ -524,7 +536,7 @@
                                   Margin="0 12"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
-                                  Background="{StaticResource WorkflowWorkbench.PanelBorderBrush}"
+                                  Background="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
                                   ResizeDirection="Rows"
                                   ResizeBehavior="PreviousAndNext"
                                   ShowsPreview="True" />
@@ -540,7 +552,7 @@
                             <ScrollViewer Margin="0 8 0 0"
                                           VerticalScrollBarVisibility="Auto">
                                 <TextBlock FontFamily="Consolas"
-                                           Foreground="{StaticResource WorkflowWorkbench.TextBrush}"
+                                           Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
                                            Text="{Binding GlobalVariablesText}"
                                            TextWrapping="Wrap" />
                             </ScrollViewer>
@@ -554,21 +566,21 @@
                           Margin="0 16"
                           HorizontalAlignment="Stretch"
                           VerticalAlignment="Stretch"
-                          Background="{StaticResource WorkflowWorkbench.PanelBorderBrush}"
+                          Background="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
                           ResizeDirection="Columns"
                           ResizeBehavior="PreviousAndNext"
                           ShowsPreview="True" />
 
             <Border Grid.Column="2"
                     Margin="0 16 16 16"
-                    Background="{StaticResource WorkflowWorkbench.CanvasOverlayBrush}"
+                    Background="{DynamicResource WorkflowWorkbench.CanvasOverlayBrush}"
                     CornerRadius="18">
                 <Grid ClipToBounds="True">
-                    <Rectangle Fill="{StaticResource WorkflowWorkbench.CanvasOverlayBrush}" />
-                    <Rectangle Fill="{StaticResource WorkflowWorkbench.LargeGridBrush}"
+                    <Rectangle Fill="{DynamicResource WorkflowWorkbench.CanvasOverlayBrush}" />
+                    <Rectangle Fill="{DynamicResource WorkflowWorkbench.LargeGridBrush}"
                                IsHitTestVisible="False"
                                Opacity="0.55" />
-                    <Rectangle Fill="{StaticResource WorkflowWorkbench.SmallGridBrush}"
+                    <Rectangle Fill="{DynamicResource WorkflowWorkbench.SmallGridBrush}"
                                IsHitTestVisible="False"
                                Opacity="0.8" />
 
@@ -640,21 +652,21 @@
                             Padding="14"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
-                            Background="#CC0F172A"
-                            BorderBrush="#334155"
+                            Background="{DynamicResource WorkflowWorkbench.CanvasCalloutBackgroundBrush}"
+                            BorderBrush="{DynamicResource WorkflowWorkbench.CanvasCalloutBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="14"
                             IsHitTestVisible="False">
                         <StackPanel>
                             <TextBlock FontSize="16"
                                        FontWeight="SemiBold"
-                                       Foreground="{StaticResource WorkflowWorkbench.CanvasTextBrush}"
+                                       Foreground="{DynamicResource WorkflowWorkbench.CanvasTextBrush}"
                                        Text="Graph Editor" />
                             <TextBlock Margin="0 6 0 0"
-                                       Foreground="#CBD5E1"
+                                       Foreground="{DynamicResource WorkflowWorkbench.CanvasCalloutSecondaryTextBrush}"
                                        Text="拖拽节点调整布局，拖动连接点创建连线，双击节点编辑设置。" />
                             <TextBlock Margin="0 4 0 0"
-                                       Foreground="#94A3B8"
+                                       Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                                        Text="{Binding StatusMessage}"
                                        TextWrapping="Wrap" />
                         </StackPanel>

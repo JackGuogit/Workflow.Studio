@@ -6,6 +6,7 @@ using System.Windows;
 using Workflow.Studio.Core.Models;
 using Workflow.Studio.Core.Nodes;
 using Workflow.Studio.Core.Services;
+using Workflow.Studio.Theme;
 
 namespace Workflow.Studio.Workbench.ViewModels;
 
@@ -34,6 +35,8 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         _workflowEngine = workflowEngine;
         _nodeFactory = nodeFactory;
         _eventHub = eventHub;
+        WorkbenchThemeManager.EnsureInitialized();
+        WorkbenchThemeManager.ThemeChanged += OnThemeChanged;
         _eventHub.NodeStatusChanged += OnNodeStatusChanged;
         _eventHub.PortValueChanged += OnPortValueChanged;
 
@@ -45,6 +48,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         ExecuteWorkflowCommand = new AsyncRelayCommand(ExecuteWorkflowAsync, CanExecuteWorkflow);
         ResetWorkflowCommand = new RelayCommand(ResetWorkflow, CanResetWorkflow);
         AddNodeCommand = new RelayCommand<NodeLibraryItemViewModel?>(AddNode);
+        ToggleThemeCommand = new RelayCommand(ToggleTheme);
 
         _workflow = CreateDemoWorkflow();
         RebuildViewModels();
@@ -64,9 +68,13 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     public IRelayCommand<NodeLibraryItemViewModel?> AddNodeCommand { get; }
 
+    public IRelayCommand ToggleThemeCommand { get; }
+
     public string WorkflowStateText => IsBusy ? "运行中" : "就绪";
 
     public string WorkflowGraphSummary => $"节点 {Nodes.Count} · 连线 {Connections.Count}";
+
+    public string CurrentThemeText => WorkbenchThemeManager.ActiveThemeDisplayName;
 
     public void NotifyNodeSettingsChanged(NodeViewModel node)
     {
@@ -235,6 +243,17 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     private void NotifyToolbarStateChanged()
     {
         OnPropertyChanged(nameof(WorkflowGraphSummary));
+    }
+
+    private void ToggleTheme()
+    {
+        WorkbenchThemeManager.SetNextTheme();
+    }
+
+    private void OnThemeChanged(object? sender, EventArgs e)
+    {
+        OnPropertyChanged(nameof(CurrentThemeText));
+        StatusMessage = $"已切换到{CurrentThemeText}主题。";
     }
 
     partial void OnIsBusyChanged(bool value)
