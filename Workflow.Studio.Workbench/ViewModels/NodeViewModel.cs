@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Windows;
 using Workflow.Studio.Core.Models;
 
@@ -43,11 +44,11 @@ public sealed class NodeViewModel : ObservableObject
 
     public string NodeTypeText => $"节点类型: {Model.NodeTypeId}";
 
-    public int ParameterCount => Model.Parameters.Count;
+    public int SettingsCount => GetSettingsEntries().Count;
 
-    public string ParameterSummary => Model.Parameters.Count == 0
-        ? "无参数"
-        : string.Join(Environment.NewLine, Model.Parameters.Select(entry => $"{entry.Key}: {FormatParameterValue(entry.Value)}"));
+    public string SettingsSummary => BuildSettingsSummary();
+
+    public bool HasEditableSettings => Model.Settings is not null && Model.SettingsViewType is not null;
 
     public Point Location
     {
@@ -112,21 +113,17 @@ public sealed class NodeViewModel : ObservableObject
 
         OnPropertyChanged(nameof(PreviewText));
         OnPropertyChanged(nameof(PortSummary));
-        OnPropertyChanged(nameof(ParameterCount));
-        OnPropertyChanged(nameof(ParameterSummary));
+        OnPropertyChanged(nameof(SettingsCount));
+        OnPropertyChanged(nameof(SettingsSummary));
+        OnPropertyChanged(nameof(HasEditableSettings));
     }
 
-    public void UpdateParameters(IReadOnlyDictionary<string, object?> parameters)
+    public void NotifySettingsChanged()
     {
-        Model.Parameters.Clear();
-
-        foreach (var entry in parameters)
-        {
-            Model.Parameters[entry.Key] = entry.Value;
-        }
-
-        OnPropertyChanged(nameof(ParameterCount));
-        OnPropertyChanged(nameof(ParameterSummary));
+        OnPropertyChanged(nameof(SettingsCount));
+        OnPropertyChanged(nameof(SettingsSummary));
+        OnPropertyChanged(nameof(HasEditableSettings));
+        OnPropertyChanged(nameof(PreviewText));
     }
 
     private static ObservableCollection<PortGroupViewModel> BuildGroups(IEnumerable<PortViewModel> ports)
@@ -140,7 +137,33 @@ public sealed class NodeViewModel : ObservableObject
         return new ObservableCollection<PortGroupViewModel>(groups);
     }
 
-    private static string FormatParameterValue(object? value)
+    private IReadOnlyList<KeyValuePair<string, object?>> GetSettingsEntries()
+    {
+        if (Model.Settings is null)
+        {
+            return [];
+        }
+
+        return Model.Settings
+            .GetType()
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(property => property.CanRead
+                && property.GetIndexParameters().Length == 0
+                && !string.Equals(property.Name, nameof(INodeSettings.Title), StringComparison.Ordinal)
+                && !string.Equals(property.Name, nameof(INodeSettings.Description), StringComparison.Ordinal))
+            .Select(property => new KeyValuePair<string, object?>(property.Name, property.GetValue(Model.Settings)))
+            .ToList();
+    }
+
+    private string BuildSettingsSummary()
+    {
+        var entries = GetSettingsEntries();
+        return entries.Count == 0
+            ? "无设置"
+            : string.Join(Environment.NewLine, entries.Select(entry => $"{entry.Key}: {FormatSettingValue(entry.Value)}"));
+    }
+
+    private static string FormatSettingValue(object? value)
     {
         return value switch
         {

@@ -46,6 +46,13 @@ public interface INode
     Collection<PortData> OutputPorts { get; }
 }
 
+public interface INodeSettings
+{
+    string Title { get; }
+
+    string Description { get; }
+}
+
 public sealed class PortMetadata
 {
     public string Id { get; init; }
@@ -128,6 +135,8 @@ public sealed class NodeLayoutData
 
 public sealed class NodeData : INode
 {
+    private INodeSettings? _settings;
+
     public NodeData(NodeMetadata metadata, string nodeTypeId)
     {
         Metadata = metadata;
@@ -142,11 +151,15 @@ public sealed class NodeData : INode
 
     public NodeLayoutData Layout { get; } = new();
 
-    public IDictionary<string, object?> Parameters { get; } = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+    public INodeSettings? Settings => _settings;
+
+    public Type? SettingsViewType { get; private set; }
 
     public Collection<PortData> InputPorts { get; } = [];
 
     public Collection<PortData> OutputPorts { get; } = [];
+
+    public bool HasSettings => _settings is not null;
 
     public PortData AddInputPort(string id, string name, Type dataType, string groupName = "Input", string? description = null)
     {
@@ -185,6 +198,22 @@ public sealed class NodeData : INode
     public PortData? FindPort(string portId)
     {
         return InputPorts.Concat(OutputPorts).FirstOrDefault(port => string.Equals(port.Metadata.Id, portId, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public TSettings GetSettings<TSettings>()
+        where TSettings : class, INodeSettings
+    {
+        return _settings as TSettings
+            ?? throw new InvalidOperationException($"Node '{Metadata.Id}' does not contain settings of type '{typeof(TSettings).FullName}'.");
+    }
+
+    public void SetSettings<TSettings>(TSettings settings, Type? settingsViewType = null)
+        where TSettings : class, INodeSettings
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+
+        _settings = settings;
+        SettingsViewType = settingsViewType;
     }
 
     public void SetStatus(NodeStatus status)

@@ -9,9 +9,21 @@ public partial class NodeParameterEditorWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
-    }
 
-    public IReadOnlyDictionary<string, object?>? EditedParameters { get; private set; }
+        if (viewModel.CreateSettingsView(out var error) is { } editorView)
+        {
+            EditorHost.Content = editorView;
+        }
+        else if (!string.IsNullOrWhiteSpace(error))
+        {
+            MessageBox.Show(
+                this,
+                error,
+                "创建设置视图失败",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+    }
 
     private void SaveButton_Click(object sender, RoutedEventArgs e)
     {
@@ -20,18 +32,17 @@ public partial class NodeParameterEditorWindow : Window
             return;
         }
 
-        if (!viewModel.TryCreateParameterSnapshot(out var parameters, out var error))
+        if (!viewModel.TryApplyChanges(out var error))
         {
             MessageBox.Show(
                 this,
-                error ?? "参数校验失败。",
-                "保存参数失败",
+                error ?? "设置校验失败。",
+                "保存设置失败",
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
             return;
         }
 
-        EditedParameters = parameters;
         DialogResult = true;
     }
 }

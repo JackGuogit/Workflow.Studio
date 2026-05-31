@@ -25,9 +25,9 @@ public partial class WorkflowWorkbenchView : UserControl
             Owner = Window.GetWindow(this)
         };
 
-        if (editorWindow.ShowDialog() == true && editorWindow.EditedParameters is not null)
+        if (editorWindow.ShowDialog() == true)
         {
-            workbenchViewModel.UpdateNodeParameters(nodeViewModel, editorWindow.EditedParameters);
+            workbenchViewModel.NotifyNodeSettingsChanged(nodeViewModel);
         }
 
         e.Handled = true;
