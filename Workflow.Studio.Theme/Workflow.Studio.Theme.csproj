@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nodify" Version="7.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Workflow.Studio.Nodify\Workflow.Studio.Nodify.csproj" />
   </ItemGroup>
 

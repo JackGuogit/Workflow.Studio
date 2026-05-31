@@ -11,6 +11,11 @@ public partial class WorkflowWorkbenchView : UserControl
     private Point _libraryDragStartPoint;
     private bool _isLibraryDragPending;
 
+    static WorkflowWorkbenchView()
+    {
+        WorkflowWorkbenchConnectorInteractions.Register();
+    }
+
     public WorkflowWorkbenchView()
     {
         InitializeComponent();

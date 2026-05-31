@@ -94,6 +94,14 @@ public sealed class PortViewModel : ObservableObject
         }
     }
 
+    public void DetachConnection(ConnectionViewModel connection)
+    {
+        if (Connections.Remove(connection))
+        {
+            OnPropertyChanged(nameof(ConnectionCount));
+        }
+    }
+
     public void SetCollapsed(bool isCollapsed)
     {
         Model.SetCollapsed(isCollapsed);

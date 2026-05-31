@@ -65,3 +65,26 @@ public class NodeInput : global::Nodify.NodeInput
 public class NodeOutput : global::Nodify.NodeOutput
 {
 }
+
+/// <summary>
+/// Wraps <see cref="global::Nodify.Minimap"/> for viewport overview rendering.
+/// </summary>
+public class Minimap : global::Nodify.Minimap
+{
+    protected override System.Windows.DependencyObject GetContainerForItemOverride()
+    {
+        return new MinimapItem();
+    }
+
+    protected override bool IsItemItsOwnContainerOverride(object item)
+    {
+        return item is global::Nodify.MinimapItem;
+    }
+}
+
+/// <summary>
+/// Wraps <see cref="global::Nodify.MinimapItem"/> for minimap item positioning.
+/// </summary>
+public class MinimapItem : global::Nodify.MinimapItem
+{
+}
