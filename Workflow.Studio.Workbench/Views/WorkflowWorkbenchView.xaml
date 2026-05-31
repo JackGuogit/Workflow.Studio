@@ -149,27 +149,21 @@
                     </Border>
 
                     <StackPanel VerticalAlignment="Center" Orientation="Vertical">
-                        <Border
-                            x:Name="StatusBadge"
-                            Padding="8,2"
-                            HorizontalAlignment="Center"
-                            Background="{DynamicResource WorkflowWorkbench.SecondaryAccentBrush}"
-                            CornerRadius="999">
-                            <TextBlock
-                                x:Name="StatusTextBlock"
-                                FontSize="10"
-                                FontWeight="SemiBold"
-                                Foreground="{DynamicResource WorkflowWorkbench.SecondaryAccentTextBrush}"
-                                Text="{Binding StatusText}" />
-                        </Border>
                         <StackPanel
                             Margin="0,6,0,0"
                             HorizontalAlignment="Center"
                             Orientation="Horizontal">
-                            <Ellipse Style="{StaticResource CanvasNodeIndicatorDotStyle}" />
-                            <Ellipse x:Name="NodeStateDot" Style="{StaticResource CanvasNodeIndicatorDotStyle}" />
                             <Ellipse
-                                x:Name="NodeOutputDot"
+                                x:Name="NodeFailedDot"
+                                Fill="{DynamicResource WorkflowWorkbench.NodeIndicatorMutedBrush}"
+                                Style="{StaticResource CanvasNodeIndicatorDotStyle}" />
+                            <Ellipse
+                                x:Name="NodeReadyDot"
+                                Fill="{DynamicResource WorkflowWorkbench.NodeIndicatorMutedBrush}"
+                                Style="{StaticResource CanvasNodeIndicatorDotStyle}" />
+                            <Ellipse
+                                x:Name="NodeSuccessDot"
+                                Fill="{DynamicResource WorkflowWorkbench.NodeIndicatorMutedBrush}"
                                 Margin="0"
                                 Style="{StaticResource CanvasNodeIndicatorDotStyle}" />
                         </StackPanel>
@@ -190,28 +184,16 @@
                         <Setter TargetName="NodeGlyphText" Property="Text" Value="OUT" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}" Value="{x:Static models:NodeStatus.Ready}">
-                        <Setter TargetName="StatusBadge" Property="Background" Value="{DynamicResource WorkflowWorkbench.SecondaryAccentBrush}" />
-                        <Setter TargetName="StatusTextBlock" Property="Foreground" Value="{DynamicResource WorkflowWorkbench.SecondaryAccentTextBrush}" />
-                        <Setter TargetName="NodeStateDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.SecondaryAccentBrush}" />
-                        <Setter TargetName="NodeOutputDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.NodeIndicatorMutedBrush}" />
+                        <Setter TargetName="NodeReadyDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.WarningBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}" Value="{x:Static models:NodeStatus.Running}">
-                        <Setter TargetName="StatusBadge" Property="Background" Value="{DynamicResource WorkflowWorkbench.WarningSoftBrush}" />
-                        <Setter TargetName="StatusTextBlock" Property="Foreground" Value="{DynamicResource WorkflowWorkbench.WarningBrush}" />
-                        <Setter TargetName="NodeStateDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.WarningBrush}" />
-                        <Setter TargetName="NodeOutputDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.WarningSoftBrush}" />
+                        <Setter TargetName="NodeReadyDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.WarningBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}" Value="{x:Static models:NodeStatus.Success}">
-                        <Setter TargetName="StatusBadge" Property="Background" Value="{DynamicResource WorkflowWorkbench.SuccessSoftBrush}" />
-                        <Setter TargetName="StatusTextBlock" Property="Foreground" Value="{DynamicResource WorkflowWorkbench.SuccessBrush}" />
-                        <Setter TargetName="NodeStateDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.SuccessBrush}" />
-                        <Setter TargetName="NodeOutputDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.SuccessSoftBrush}" />
+                        <Setter TargetName="NodeSuccessDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.SuccessBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}" Value="{x:Static models:NodeStatus.Failed}">
-                        <Setter TargetName="StatusBadge" Property="Background" Value="{DynamicResource WorkflowWorkbench.ErrorSoftBrush}" />
-                        <Setter TargetName="StatusTextBlock" Property="Foreground" Value="{DynamicResource WorkflowWorkbench.ErrorBrush}" />
-                        <Setter TargetName="NodeStateDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.ErrorBrush}" />
-                        <Setter TargetName="NodeOutputDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.ErrorSoftBrush}" />
+                        <Setter TargetName="NodeFailedDot" Property="Fill" Value="{DynamicResource WorkflowWorkbench.ErrorBrush}" />
                     </DataTrigger>
                 </DataTemplate.Triggers>
             </DataTemplate>
