@@ -2,12 +2,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using Workflow.Studio.Core.Models;
 using Workflow.Studio.Core.Nodes;
 using Workflow.Studio.Core.Services;
 using Workflow.Studio.Theme;
+using Workflow.Studio.Workbench.Services;
 
 namespace Workflow.Studio.Workbench.ViewModels;
 
@@ -16,6 +18,8 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     private readonly WorkflowEngine _workflowEngine;
     private readonly NodeFactory _nodeFactory;
     private readonly WorkflowEventHub _eventHub;
+    private readonly IWorkflowPersistenceService _workflowPersistenceService;
+    private readonly IWorkflowDocumentPickerService _documentPickerService;
     private readonly SemaphoreSlim _executionGate = new(1, 1);
     private readonly Dictionary<string, NodeViewModel> _nodeIndex = new(StringComparer.OrdinalIgnoreCase);
     private WorkflowData _workflow;
@@ -30,6 +34,14 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(WorkflowStateText))]
     [NotifyCanExecuteChangedFor(nameof(ExecuteWorkflowCommand))]
     private bool _isBusy;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(WorkflowStateText))]
+    private bool _isDocumentBusy;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(WorkflowDocumentText))]
+    private string? _currentWorkflowFilePath;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ViewportText))]
@@ -49,11 +61,18 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     [ObservableProperty]
     private ConnectionViewModel? _selectedConnection;
 
-    public WorkflowWorkbenchViewModel(WorkflowEngine workflowEngine, NodeFactory nodeFactory, WorkflowEventHub eventHub)
+    public WorkflowWorkbenchViewModel(
+        WorkflowEngine workflowEngine,
+        NodeFactory nodeFactory,
+        WorkflowEventHub eventHub,
+        IWorkflowPersistenceService workflowPersistenceService,
+        IWorkflowDocumentPickerService documentPickerService)
     {
         _workflowEngine = workflowEngine;
         _nodeFactory = nodeFactory;
         _eventHub = eventHub;
+        _workflowPersistenceService = workflowPersistenceService;
+        _documentPickerService = documentPickerService;
         WorkbenchThemeManager.EnsureInitialized();
         WorkbenchThemeManager.ThemeChanged += OnThemeChanged;
         _eventHub.NodeStatusChanged += OnNodeStatusChanged;
@@ -67,6 +86,8 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
             _nodeFactory.GetAvailableNodes().Select(descriptor => new NodeLibraryItemViewModel(descriptor)));
         PendingConnection = new PendingConnectionViewModel(this);
         ExecuteWorkflowCommand = new AsyncRelayCommand(ExecuteWorkflowAsync, CanExecuteWorkflow);
+        SaveWorkflowCommand = new AsyncRelayCommand(SaveWorkflowAsync, CanManageWorkflowDocument);
+        LoadWorkflowCommand = new AsyncRelayCommand(LoadWorkflowAsync, CanManageWorkflowDocument);
         ResetWorkflowCommand = new RelayCommand(ResetWorkflow, CanResetWorkflow);
         DeleteSelectionCommand = new RelayCommand(DeleteSelection, CanDeleteSelection);
         RemoveNodeCommand = new RelayCommand<NodeViewModel?>(RemoveNode, CanRemoveNode);
@@ -96,6 +117,10 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     public IAsyncRelayCommand ExecuteWorkflowCommand { get; }
 
+    public IAsyncRelayCommand SaveWorkflowCommand { get; }
+
+    public IAsyncRelayCommand LoadWorkflowCommand { get; }
+
     public IRelayCommand ResetWorkflowCommand { get; }
 
     public IRelayCommand DeleteSelectionCommand { get; }
@@ -110,7 +135,11 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     public IRelayCommand ToggleThemeCommand { get; }
 
-    public string WorkflowStateText => IsBusy ? "运行中" : "就绪";
+    public string WorkflowStateText => IsBusy ? "执行中" : IsDocumentBusy ? "处理中" : "就绪";
+
+    public string WorkflowDocumentText => string.IsNullOrWhiteSpace(CurrentWorkflowFilePath)
+        ? "当前文档: 内置 Demo"
+        : $"当前文档: {Path.GetFileName(CurrentWorkflowFilePath)}";
 
     public string WorkflowGraphSummary => $"节点 {Nodes.Count} · 连线 {Connections.Count}";
 
@@ -132,6 +161,12 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     public void Connect(PortViewModel source, PortViewModel target)
     {
+        if (IsWorkbenchBusy)
+        {
+            StatusMessage = "工作台正在处理任务，请稍候后再连接端口。";
+            return;
+        }
+
         _ = TryAddConnection(source, target);
     }
 
@@ -139,6 +174,12 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     {
         ArgumentNullException.ThrowIfNull(currentTarget);
         ArgumentNullException.ThrowIfNull(newTarget);
+
+        if (IsWorkbenchBusy)
+        {
+            StatusMessage = "工作台正在处理任务，请稍候后再重定向连线。";
+            return false;
+        }
 
         if (currentTarget.Direction != PortDirection.Input || newTarget.Direction != PortDirection.Input)
         {
@@ -195,6 +236,12 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     {
         ArgumentNullException.ThrowIfNull(item);
 
+        if (IsWorkbenchBusy)
+        {
+            StatusMessage = "工作台正在处理任务，请稍候后再添加节点。";
+            return;
+        }
+
         var node = _nodeFactory.CreateNode(item.NodeTypeId, location.X, location.Y);
         _workflow.AddNode(node);
 
@@ -208,32 +255,95 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     private bool CanExecuteWorkflow()
     {
-        return !IsBusy;
+        return !IsWorkbenchBusy;
+    }
+
+    private bool CanManageWorkflowDocument()
+    {
+        return !IsWorkbenchBusy;
     }
 
     private bool CanResetWorkflow()
     {
-        return !IsBusy;
+        return !IsWorkbenchBusy;
     }
 
     private bool CanDeleteSelection()
     {
-        return !IsBusy && (SelectedNodes.Count > 0 || SelectedConnections.Count > 0);
+        return !IsWorkbenchBusy && (SelectedNodes.Count > 0 || SelectedConnections.Count > 0);
     }
 
     private bool CanRemoveNode(NodeViewModel? node)
     {
-        return !IsBusy && node is not null;
+        return !IsWorkbenchBusy && node is not null;
     }
 
     private bool CanRemoveConnection(ConnectionViewModel? connection)
     {
-        return !IsBusy && connection is not null;
+        return !IsWorkbenchBusy && connection is not null;
     }
 
     private bool CanDisconnectConnector(object? connector)
     {
-        return !IsBusy && connector is PortViewModel port && port.ConnectionCount > 0;
+        return !IsWorkbenchBusy && connector is PortViewModel port && port.ConnectionCount > 0;
+    }
+
+    private async Task SaveWorkflowAsync()
+    {
+        var filePath = _documentPickerService.PickSaveFilePath(CurrentWorkflowFilePath);
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            StatusMessage = "已取消保存工作流。";
+            return;
+        }
+
+        try
+        {
+            IsDocumentBusy = true;
+            StatusMessage = "正在保存工作流...";
+            await _workflowPersistenceService.SaveAsync(_workflow, filePath);
+            CurrentWorkflowFilePath = filePath;
+            StatusMessage = $"已保存工作流: {Path.GetFileName(filePath)}";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"保存工作流失败：{ex.Message}";
+        }
+        finally
+        {
+            IsDocumentBusy = false;
+        }
+    }
+
+    private async Task LoadWorkflowAsync()
+    {
+        var filePath = _documentPickerService.PickOpenFilePath(CurrentWorkflowFilePath);
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            StatusMessage = "已取消加载工作流。";
+            return;
+        }
+
+        try
+        {
+            IsDocumentBusy = true;
+            StatusMessage = "正在加载工作流...";
+
+            var workflow = await _workflowPersistenceService.LoadAsync(filePath);
+            _workflow = workflow;
+            CurrentWorkflowFilePath = filePath;
+            RebuildViewModels();
+            GlobalVariablesText = BuildGlobalVariablesText(_workflow.GlobalVariables, "没有全局变量");
+            StatusMessage = $"已加载工作流: {Path.GetFileName(filePath)}";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"加载工作流失败：{ex.Message}";
+        }
+        finally
+        {
+            IsDocumentBusy = false;
+        }
     }
 
     private async Task ExecuteWorkflowAsync()
@@ -258,9 +368,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
                 CancellationToken.None);
             RefreshGraphVisualState();
 
-            GlobalVariablesText = context.GlobalVariables.Count == 0
-                ? "没有全局变量"
-                : string.Join(Environment.NewLine, context.GlobalVariables.Select(entry => $"{entry.Key}: {entry.Value}"));
+            GlobalVariablesText = BuildGlobalVariablesText(context.GlobalVariables, "没有全局变量");
 
             StatusMessage = $"执行完成，共处理 {context.History.Count} 个节点。";
         }
@@ -281,6 +389,11 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     private void ResetWorkflow()
     {
+        if (IsWorkbenchBusy)
+        {
+            return;
+        }
+
         foreach (var node in _workflow.Nodes)
         {
             node.SetStatus(NodeStatus.Ready);
@@ -429,6 +542,21 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     partial void OnIsBusyChanged(bool value)
     {
+        ExecuteWorkflowCommand.NotifyCanExecuteChanged();
+        SaveWorkflowCommand.NotifyCanExecuteChanged();
+        LoadWorkflowCommand.NotifyCanExecuteChanged();
+        ResetWorkflowCommand.NotifyCanExecuteChanged();
+        DeleteSelectionCommand.NotifyCanExecuteChanged();
+        RemoveNodeCommand.NotifyCanExecuteChanged();
+        RemoveConnectionCommand.NotifyCanExecuteChanged();
+        DisconnectConnectorCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnIsDocumentBusyChanged(bool value)
+    {
+        ExecuteWorkflowCommand.NotifyCanExecuteChanged();
+        SaveWorkflowCommand.NotifyCanExecuteChanged();
+        LoadWorkflowCommand.NotifyCanExecuteChanged();
         ResetWorkflowCommand.NotifyCanExecuteChanged();
         DeleteSelectionCommand.NotifyCanExecuteChanged();
         RemoveNodeCommand.NotifyCanExecuteChanged();
@@ -618,6 +746,16 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
             node.Refresh();
         }
     }
+
+    private static string BuildGlobalVariablesText(IEnumerable<KeyValuePair<string, object?>> globalVariables, string emptyText)
+    {
+        var entries = globalVariables.ToList();
+        return entries.Count == 0
+            ? emptyText
+            : string.Join(Environment.NewLine, entries.Select(entry => $"{entry.Key}: {entry.Value}"));
+    }
+
+    private bool IsWorkbenchBusy => IsBusy || IsDocumentBusy;
 
     private WorkflowData CreateDemoWorkflow()
     {

@@ -163,8 +163,8 @@
                                 Style="{StaticResource CanvasNodeIndicatorDotStyle}" />
                             <Ellipse
                                 x:Name="NodeSuccessDot"
-                                Fill="{DynamicResource WorkflowWorkbench.NodeIndicatorMutedBrush}"
                                 Margin="0"
+                                Fill="{DynamicResource WorkflowWorkbench.NodeIndicatorMutedBrush}"
                                 Style="{StaticResource CanvasNodeIndicatorDotStyle}" />
                         </StackPanel>
                     </StackPanel>
@@ -296,6 +296,15 @@
                         Command="{Binding ResetWorkflowCommand}"
                         Content="重置状态"
                         Style="{StaticResource WorkbenchToolbarButtonStyle}" />
+                    <Button
+                        Command="{Binding SaveWorkflowCommand}"
+                        Content="保存工作流"
+                        Style="{StaticResource WorkbenchToolbarButtonStyle}" />
+                    <Button
+                        Margin="0"
+                        Command="{Binding LoadWorkflowCommand}"
+                        Content="加载工作流"
+                        Style="{StaticResource WorkbenchToolbarButtonStyle}" />
                 </StackPanel>
 
                 <StackPanel
@@ -317,6 +326,10 @@
                         Margin="0,8,0,0"
                         Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                         Text="在顶部快速执行工作流、重置状态，并实时查看当前图状态。" />
+                    <TextBlock
+                        Margin="0,4,0,0"
+                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                        Text="{Binding WorkflowDocumentText}" />
                 </StackPanel>
 
                 <Button

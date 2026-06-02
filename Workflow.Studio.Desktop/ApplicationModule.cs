@@ -1,9 +1,11 @@
 using Autofac;
 using Workflow.Studio.Desktop.ViewModels;
+using Workflow.Studio.Desktop.Services;
 using Workflow.Studio.Core.Plugins;
 using Workflow.Studio.Core.Services;
 using Workflow.Studio.Nodes;
 using Workflow.Studio.Plugins.BuiltIn;
+using Workflow.Studio.Workbench.Services;
 using Workflow.Studio.Workbench.ViewModels;
 
 namespace Workflow.Studio.Desktop;
@@ -56,6 +58,14 @@ public sealed class ApplicationModule : Module
             .SingleInstance();
 
         builder.RegisterType<NodeFactory>()
+            .SingleInstance();
+
+        builder.RegisterType<WorkflowPersistenceService>()
+            .As<IWorkflowPersistenceService>()
+            .SingleInstance();
+
+        builder.RegisterType<WorkflowDocumentPickerService>()
+            .As<IWorkflowDocumentPickerService>()
             .SingleInstance();
 
         builder.RegisterType<WorkflowWorkbenchViewModel>()
