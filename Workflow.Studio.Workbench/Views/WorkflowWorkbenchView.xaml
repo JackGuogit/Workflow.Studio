@@ -239,6 +239,84 @@
                         Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
                         Text="{Binding PreviewText}"
                         TextWrapping="Wrap" />
+                    <TextBlock
+                        Margin="0,10,0,0"
+                        Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
+                        Text="输入端口" />
+                    <ItemsControl ItemsSource="{Binding InputPorts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
+                                <Border
+                                    Margin="0,4,0,0"
+                                    Padding="8,6"
+                                    Background="{DynamicResource WorkflowWorkbench.SubtleBackgroundBrush}"
+                                    CornerRadius="10">
+                                    <DockPanel LastChildFill="True">
+                                        <Border
+                                            DockPanel.Dock="Right"
+                                            Padding="8,2"
+                                            Background="{Binding SemanticBadgeBackground}"
+                                            CornerRadius="999">
+                                            <TextBlock
+                                                FontSize="11"
+                                                FontWeight="SemiBold"
+                                                Foreground="{Binding SemanticBadgeForeground}"
+                                                Text="{Binding SemanticBadgeText}" />
+                                        </Border>
+                                        <StackPanel>
+                                            <TextBlock
+                                                FontWeight="SemiBold"
+                                                Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
+                                                Text="{Binding Title}" />
+                                            <TextBlock
+                                                Margin="0,2,0,0"
+                                                Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
+                                                Text="{Binding TypeDisplayText}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock
+                        Margin="0,10,0,0"
+                        Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
+                        Text="输出端口" />
+                    <ItemsControl ItemsSource="{Binding OutputPorts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
+                                <Border
+                                    Margin="0,4,0,0"
+                                    Padding="8,6"
+                                    Background="{DynamicResource WorkflowWorkbench.SubtleBackgroundBrush}"
+                                    CornerRadius="10">
+                                    <DockPanel LastChildFill="True">
+                                        <Border
+                                            DockPanel.Dock="Right"
+                                            Padding="8,2"
+                                            Background="{Binding SemanticBadgeBackground}"
+                                            CornerRadius="999">
+                                            <TextBlock
+                                                FontSize="11"
+                                                FontWeight="SemiBold"
+                                                Foreground="{Binding SemanticBadgeForeground}"
+                                                Text="{Binding SemanticBadgeText}" />
+                                        </Border>
+                                        <StackPanel>
+                                            <TextBlock
+                                                FontWeight="SemiBold"
+                                                Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
+                                                Text="{Binding Title}" />
+                                            <TextBlock
+                                                Margin="0,2,0,0"
+                                                Style="{StaticResource WorkflowWorkbench.CaptionTextStyle}"
+                                                Text="{Binding TypeDisplayText}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </DataTemplate>
 
@@ -587,6 +665,7 @@
                                         <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
                                             <nodify:NodeInput
                                                 Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                BorderBrush="{Binding SemanticAccentBrush}"
                                                 IsConnected="{Binding IsConnected}"
                                                 Style="{StaticResource WorkflowWorkbench.NodeInputStyle}"
                                                 ToolTip="{Binding ToolTipText}" />
@@ -597,6 +676,7 @@
                                         <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
                                             <nodify:NodeOutput
                                                 Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                BorderBrush="{Binding SemanticAccentBrush}"
                                                 IsConnected="{Binding IsConnected}"
                                                 Style="{StaticResource WorkflowWorkbench.NodeOutputStyle}"
                                                 ToolTip="{Binding ToolTipText}" />
