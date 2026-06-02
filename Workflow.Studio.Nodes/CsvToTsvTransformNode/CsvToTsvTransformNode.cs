@@ -40,8 +40,8 @@ public sealed class CsvToTsvTransformNode : WorkflowNodeDefinition<EmptyNodeSett
 
     protected override void BuildNode(NodeData node, EmptyNodeSettings settings)
     {
-        node.AddInputPort("incoming", "CSV输入", typeof(string), "Input", "上游传入的 CSV 文本");
-        node.AddOutputPort("result", "TSV结果", typeof(string), "Output", "转换后的 TSV 文本");
+        node.AddInputPort("incoming", "CSV输入", typeof(string), "Input", "上游传入的 CSV 文本", WorkflowPortSemanticTypes.CsvText);
+        node.AddOutputPort("result", "TSV结果", typeof(string), "Output", "转换后的 TSV 文本", WorkflowPortSemanticTypes.TsvText);
     }
 
     protected override Task<NodeExecutionResult> ExecuteAsync(

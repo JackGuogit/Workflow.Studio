@@ -36,8 +36,8 @@ public sealed class PreviewNode : WorkflowNodeDefinition<EmptyNodeSettings>
 
     protected override void BuildNode(NodeData node, EmptyNodeSettings settings)
     {
-        node.AddInputPort("incoming", "输入", typeof(string), "Input", "预览输入");
-        node.AddOutputPort("preview-text", "预览", typeof(string), "Output", "预览输出");
+        node.AddInputPort("incoming", "输入", typeof(string), "Input", "预览输入", WorkflowPortSemanticTypes.PlainText);
+        node.AddOutputPort("preview-text", "预览", typeof(string), "Output", "预览输出", WorkflowPortSemanticTypes.PreviewText);
     }
 
     protected override async Task<NodeExecutionResult> ExecuteAsync(

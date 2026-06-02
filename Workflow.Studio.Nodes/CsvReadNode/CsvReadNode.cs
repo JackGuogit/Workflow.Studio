@@ -31,8 +31,8 @@ public sealed class CsvReadNode : WorkflowNodeDefinition<CsvReadNodeSettingsView
 
     protected override void BuildNode(NodeData node, CsvReadNodeSettingsViewModel settings)
     {
-        node.AddOutputPort("csv-content", "CSV内容", typeof(string), "Output", "读取到的 CSV 文本");
-        node.AddOutputPort("source-path", "源路径", typeof(string), "Output", "实际读取的文件路径");
+        node.AddOutputPort("csv-content", "CSV内容", typeof(string), "Output", "读取到的 CSV 文本", WorkflowPortSemanticTypes.CsvText);
+        node.AddOutputPort("source-path", "源路径", typeof(string), "Output", "实际读取的文件路径", WorkflowPortSemanticTypes.FilePath);
     }
 
     protected override async Task<NodeExecutionResult> ExecuteAsync(

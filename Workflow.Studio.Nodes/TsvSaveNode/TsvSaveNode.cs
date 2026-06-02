@@ -31,8 +31,8 @@ public sealed class TsvSaveNode : WorkflowNodeDefinition<TsvSaveNodeSettingsView
 
     protected override void BuildNode(NodeData node, TsvSaveNodeSettingsViewModel settings)
     {
-        node.AddInputPort("incoming", "TSV输入", typeof(string), "Input", "待保存的 TSV 文本");
-        node.AddOutputPort("saved-path", "保存路径", typeof(string), "Output", "成功写入的文件路径");
+        node.AddInputPort("incoming", "TSV输入", typeof(string), "Input", "待保存的 TSV 文本", WorkflowPortSemanticTypes.TsvText);
+        node.AddOutputPort("saved-path", "保存路径", typeof(string), "Output", "成功写入的文件路径", WorkflowPortSemanticTypes.FilePath);
     }
 
     protected override async Task<NodeExecutionResult> ExecuteAsync(

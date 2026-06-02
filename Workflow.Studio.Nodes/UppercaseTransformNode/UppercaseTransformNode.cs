@@ -36,8 +36,8 @@ public sealed class UppercaseTransformNode : WorkflowNodeDefinition<EmptyNodeSet
 
     protected override void BuildNode(NodeData node, EmptyNodeSettings settings)
     {
-        node.AddInputPort("incoming", "输入", typeof(string), "Input", "上游输入");
-        node.AddOutputPort("result", "结果", typeof(string), "Output", "转换结果");
+        node.AddInputPort("incoming", "输入", typeof(string), "Input", "上游输入", WorkflowPortSemanticTypes.PlainText);
+        node.AddOutputPort("result", "结果", typeof(string), "Output", "转换结果", WorkflowPortSemanticTypes.PlainText);
     }
 
     protected override async Task<NodeExecutionResult> ExecuteAsync(

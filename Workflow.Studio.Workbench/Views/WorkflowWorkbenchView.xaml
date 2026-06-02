@@ -589,7 +589,7 @@
                                                 Anchor="{Binding Anchor, Mode=OneWayToSource}"
                                                 IsConnected="{Binding IsConnected}"
                                                 Style="{StaticResource WorkflowWorkbench.NodeInputStyle}"
-                                                ToolTip="{Binding DisplayValue}" />
+                                                ToolTip="{Binding ToolTipText}" />
                                         </DataTemplate>
                                     </nodify:Node.InputConnectorTemplate>
 
@@ -599,7 +599,7 @@
                                                 Anchor="{Binding Anchor, Mode=OneWayToSource}"
                                                 IsConnected="{Binding IsConnected}"
                                                 Style="{StaticResource WorkflowWorkbench.NodeOutputStyle}"
-                                                ToolTip="{Binding DisplayValue}" />
+                                                ToolTip="{Binding ToolTipText}" />
                                         </DataTemplate>
                                     </nodify:Node.OutputConnectorTemplate>
                                 </nodify:Node>

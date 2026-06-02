@@ -30,7 +30,7 @@ public sealed class TextSourceNode : WorkflowNodeDefinition<TextSourceNodeSettin
 
     protected override void BuildNode(NodeData node, TextSourceNodeSettingsViewModel settings)
     {
-        node.AddOutputPort("content", "内容", typeof(string), "Output", "节点输出内容");
+        node.AddOutputPort("content", "内容", typeof(string), "Output", "节点输出内容", WorkflowPortSemanticTypes.PlainText);
     }
 
     protected override async Task<NodeExecutionResult> ExecuteAsync(

@@ -32,6 +32,12 @@ public sealed class PortViewModel : ObservableObject
 
     public string DataTypeName => Model.Metadata.DataType.Name;
 
+    public string SemanticTypeKey => string.IsNullOrWhiteSpace(Model.Metadata.SemanticTypeKey)
+        ? "未指定"
+        : Model.Metadata.SemanticTypeKey;
+
+    public string TypeDisplayText => $"{DataTypeName} / {SemanticTypeKey}";
+
     public PortDirection Direction => Model.Direction;
 
     public ObservableCollection<ConnectionViewModel> Connections { get; }
@@ -50,6 +56,7 @@ public sealed class PortViewModel : ObservableObject
             if (SetProperty(ref _value, value))
             {
                 OnPropertyChanged(nameof(DisplayValue));
+                OnPropertyChanged(nameof(ToolTipText));
             }
         }
     }
@@ -63,6 +70,7 @@ public sealed class PortViewModel : ObservableObject
             {
                 OnPropertyChanged(nameof(IsConnected));
                 OnPropertyChanged(nameof(StatusText));
+                OnPropertyChanged(nameof(ToolTipText));
             }
         }
     }
@@ -77,12 +85,19 @@ public sealed class PortViewModel : ObservableObject
 
     public string DisplayValue => Value?.ToString() ?? "(empty)";
 
+    public string ToolTipText =>
+        $"{Owner.Title}.{Title}{Environment.NewLine}" +
+        $"类型: {TypeDisplayText}{Environment.NewLine}" +
+        $"状态: {StatusText}{Environment.NewLine}" +
+        $"值: {DisplayValue}";
+
     public void Refresh()
     {
         Value = Model.Value;
         Status = Model.Status;
         OnPropertyChanged(nameof(IsCollapsed));
         OnPropertyChanged(nameof(ConnectionCount));
+        OnPropertyChanged(nameof(ToolTipText));
     }
 
     public void AttachConnection(ConnectionViewModel connection)

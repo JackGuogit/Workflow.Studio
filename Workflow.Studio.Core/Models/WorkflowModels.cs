@@ -61,6 +61,8 @@ public sealed class PortMetadata
 
     public Type DataType { get; init; }
 
+    public string SemanticTypeKey { get; init; } = string.Empty;
+
     public string GroupName { get; init; } = "Default";
 
     public string Description { get; init; } = string.Empty;
@@ -166,7 +168,13 @@ public sealed class NodeData : INode
 
     public bool HasSettings => _settings is not null;
 
-    public PortData AddInputPort(string id, string name, Type dataType, string groupName = "Input", string? description = null)
+    public PortData AddInputPort(
+        string id,
+        string name,
+        Type dataType,
+        string groupName = "Input",
+        string? description = null,
+        string? semanticTypeKey = null)
     {
         var port = new PortData(
             new PortMetadata
@@ -174,6 +182,7 @@ public sealed class NodeData : INode
                 Id = id,
                 Name = name,
                 DataType = dataType,
+                SemanticTypeKey = semanticTypeKey ?? string.Empty,
                 GroupName = groupName,
                 Description = description ?? string.Empty
             },
@@ -183,7 +192,13 @@ public sealed class NodeData : INode
         return port;
     }
 
-    public PortData AddOutputPort(string id, string name, Type dataType, string groupName = "Output", string? description = null)
+    public PortData AddOutputPort(
+        string id,
+        string name,
+        Type dataType,
+        string groupName = "Output",
+        string? description = null,
+        string? semanticTypeKey = null)
     {
         var port = new PortData(
             new PortMetadata
@@ -191,6 +206,7 @@ public sealed class NodeData : INode
                 Id = id,
                 Name = name,
                 DataType = dataType,
+                SemanticTypeKey = semanticTypeKey ?? string.Empty,
                 GroupName = groupName,
                 Description = description ?? string.Empty
             },

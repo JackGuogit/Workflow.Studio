@@ -51,11 +51,11 @@ public sealed class WorkflowConnectionValidator : IWorkflowConnectionValidator
             return ConnectionValidationResult.Failure("仅支持输出端口连接输入端口。");
         }
 
-        if (!PortTypeCompatibility.AreCompatible(sourcePort.Metadata.DataType, targetPort.Metadata.DataType))
+        if (!PortTypeCompatibility.AreCompatible(sourcePort.Metadata, targetPort.Metadata))
         {
             return ConnectionValidationResult.Failure(
-                $"端口类型不兼容：{DescribePort(sourceNode, sourcePort)} 输出 '{PortTypeCompatibility.GetDisplayName(sourcePort.Metadata.DataType)}'，" +
-                $"{DescribePort(targetNode, targetPort)} 需要 '{PortTypeCompatibility.GetDisplayName(targetPort.Metadata.DataType)}'。");
+                $"端口类型不兼容：{DescribePort(sourceNode, sourcePort)} 输出 '{DescribeType(sourcePort.Metadata)}'，" +
+                $"{DescribePort(targetNode, targetPort)} 需要 '{DescribeType(targetPort.Metadata)}'。");
         }
 
         var effectiveConnections = workflow.Connections.Where(connection => !ReferenceEquals(connection, ignoredConnection)).ToList();
@@ -145,6 +145,13 @@ public sealed class WorkflowConnectionValidator : IWorkflowConnectionValidator
     private static string DescribePort(NodeData node, PortData port)
     {
         return $"{node.Metadata.Name}.{port.Metadata.Name}";
+    }
+
+    private static string DescribeType(PortMetadata metadata)
+    {
+        var dataTypeName = PortTypeCompatibility.GetDisplayName(metadata.DataType);
+        var semanticTypeName = PortTypeCompatibility.GetSemanticDisplayName(metadata.SemanticTypeKey);
+        return $"{dataTypeName} / {semanticTypeName}";
     }
 }
 
