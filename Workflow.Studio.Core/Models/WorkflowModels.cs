@@ -84,8 +84,13 @@ public sealed class PortData : IPort
 
     public bool IsCollapsed { get; private set; }
 
-    public void SetValue(object? value)
+    public void SetValue(object? value, string? context = null)
     {
+        PortTypeCompatibility.EnsureValueMatches(
+            Metadata.DataType,
+            value,
+            context ?? $"端口 '{Metadata.Name}'");
+
         Value = value;
         Status = value is null ? PortStatus.Connected : PortStatus.HasData;
     }

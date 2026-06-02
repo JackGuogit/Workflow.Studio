@@ -9,13 +9,19 @@ public sealed class WorkflowEngine
     private readonly PluginManager _pluginManager;
     private readonly NodeManager _nodeManager;
     private readonly WorkflowEventHub _eventHub;
+    private readonly IWorkflowConnectionValidator _connectionValidator;
     private readonly SemaphoreSlim _executionGate = new(1, 1);
 
-    public WorkflowEngine(PluginManager pluginManager, NodeManager nodeManager, WorkflowEventHub eventHub)
+    public WorkflowEngine(
+        PluginManager pluginManager,
+        NodeManager nodeManager,
+        WorkflowEventHub eventHub,
+        IWorkflowConnectionValidator connectionValidator)
     {
         _pluginManager = pluginManager;
         _nodeManager = nodeManager;
         _eventHub = eventHub;
+        _connectionValidator = connectionValidator;
     }
 
     public event EventHandler<NodeStatusChangedEventArgs>? NodeStatusChanged;
@@ -37,6 +43,7 @@ public sealed class WorkflowEngine
             }
 
             _nodeManager.AttachWorkflow(workflow);
+            _connectionValidator.EnsureWorkflowIsValid(workflow);
             ResetWorkflowState(workflow);
             await _pluginManager.InitializeAsync(cancellationToken);
 
@@ -199,7 +206,7 @@ public sealed class WorkflowEngine
                 continue;
             }
 
-            outputPort.SetValue(value);
+            outputPort.SetValue(value, BuildPortContext(node, outputPort));
             context.CapturePortValue(node.Metadata.Id, outputPort.Metadata.Id, value);
             RaisePortValueChanged(node.Metadata.Id, outputPort);
         }
@@ -215,9 +222,10 @@ public sealed class WorkflowEngine
         foreach (var connection in _nodeManager.GetOutgoingConnections(workflow, sourceNode.Metadata.Id))
         {
             var sourcePort = _nodeManager.GetPort(connection.SourceNodeId, connection.SourcePortId);
+            var targetNode = _nodeManager.GetNode(connection.TargetNodeId);
             var targetPort = _nodeManager.GetPort(connection.TargetNodeId, connection.TargetPortId);
 
-            targetPort.SetValue(sourcePort.Value);
+            targetPort.SetValue(sourcePort.Value, BuildPortContext(targetNode, targetPort));
             context.CapturePortValue(connection.TargetNodeId, connection.TargetPortId, sourcePort.Value);
             RaisePortValueChanged(connection.TargetNodeId, targetPort);
         }
@@ -277,6 +285,11 @@ public sealed class WorkflowEngine
         {
             workflow.GlobalVariables[entry.Key] = entry.Value;
         }
+    }
+
+    private static string BuildPortContext(NodeData node, PortData port)
+    {
+        return $"端口 '{node.Metadata.Name}.{port.Metadata.Name}'";
     }
 }
 

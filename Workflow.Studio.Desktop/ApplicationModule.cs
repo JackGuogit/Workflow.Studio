@@ -60,6 +60,10 @@ public sealed class ApplicationModule : Module
         builder.RegisterType<NodeFactory>()
             .SingleInstance();
 
+        builder.RegisterType<WorkflowConnectionValidator>()
+            .As<IWorkflowConnectionValidator>()
+            .SingleInstance();
+
         builder.RegisterType<WorkflowPersistenceService>()
             .As<IWorkflowPersistenceService>()
             .SingleInstance();

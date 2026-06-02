@@ -20,10 +20,12 @@ public sealed class WorkflowPersistenceService : IWorkflowPersistenceService
     };
 
     private readonly NodeFactory _nodeFactory;
+    private readonly IWorkflowConnectionValidator _connectionValidator;
 
-    public WorkflowPersistenceService(NodeFactory nodeFactory)
+    public WorkflowPersistenceService(NodeFactory nodeFactory, IWorkflowConnectionValidator connectionValidator)
     {
         _nodeFactory = nodeFactory;
+        _connectionValidator = connectionValidator;
     }
 
     public async Task SaveAsync(WorkflowData workflow, string filePath, CancellationToken cancellationToken = default)
@@ -38,6 +40,7 @@ public sealed class WorkflowPersistenceService : IWorkflowPersistenceService
         }
 
         var document = CreateDocument(workflow);
+        _connectionValidator.EnsureWorkflowIsValid(workflow);
 
         await using var stream = File.Create(filePath);
         await JsonSerializer.SerializeAsync(stream, document, SerializerOptions, cancellationToken);
@@ -141,6 +144,7 @@ public sealed class WorkflowPersistenceService : IWorkflowPersistenceService
             workflow.GlobalVariables[globalVariable.Key] = DeserializeValue(globalVariable.Value);
         }
 
+        _connectionValidator.EnsureWorkflowIsValid(workflow);
         return workflow;
     }
 

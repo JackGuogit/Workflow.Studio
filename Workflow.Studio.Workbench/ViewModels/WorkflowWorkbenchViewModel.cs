@@ -18,6 +18,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     private readonly WorkflowEngine _workflowEngine;
     private readonly NodeFactory _nodeFactory;
     private readonly WorkflowEventHub _eventHub;
+    private readonly IWorkflowConnectionValidator _connectionValidator;
     private readonly IWorkflowPersistenceService _workflowPersistenceService;
     private readonly IWorkflowDocumentPickerService _documentPickerService;
     private readonly SemaphoreSlim _executionGate = new(1, 1);
@@ -65,12 +66,14 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         WorkflowEngine workflowEngine,
         NodeFactory nodeFactory,
         WorkflowEventHub eventHub,
+        IWorkflowConnectionValidator connectionValidator,
         IWorkflowPersistenceService workflowPersistenceService,
         IWorkflowDocumentPickerService documentPickerService)
     {
         _workflowEngine = workflowEngine;
         _nodeFactory = nodeFactory;
         _eventHub = eventHub;
+        _connectionValidator = connectionValidator;
         _workflowPersistenceService = workflowPersistenceService;
         _documentPickerService = documentPickerService;
         WorkbenchThemeManager.EnsureInitialized();
@@ -576,23 +579,17 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     private bool CanConnect(PortViewModel source, PortViewModel target)
     {
-        return source.Direction == PortDirection.Output
-            && target.Direction == PortDirection.Input
-            && !ReferenceEquals(source, target)
-            && !Connections.Any(connection =>
-                string.Equals(connection.Source.Owner.Id, source.Owner.Id, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(connection.Source.Id, source.Id, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(connection.Target.Owner.Id, target.Owner.Id, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(connection.Target.Id, target.Id, StringComparison.OrdinalIgnoreCase));
+        return ValidateConnection(source, target).IsValid;
     }
 
     private bool TryAddConnection(PortViewModel source, PortViewModel target, bool updateStatus = true, bool updateVisualState = true)
     {
-        if (!CanConnect(source, target))
+        var validationResult = ValidateConnection(source, target);
+        if (!validationResult.IsValid)
         {
             if (updateStatus)
             {
-                StatusMessage = "仅支持输出端口连接输入端口，且会忽略重复连接。";
+                StatusMessage = validationResult.Message;
             }
 
             return false;
@@ -753,6 +750,16 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         return entries.Count == 0
             ? emptyText
             : string.Join(Environment.NewLine, entries.Select(entry => $"{entry.Key}: {entry.Value}"));
+    }
+
+    private ConnectionValidationResult ValidateConnection(PortViewModel source, PortViewModel target)
+    {
+        return _connectionValidator.ValidateConnection(
+            _workflow,
+            source.Owner.Model,
+            source.Model,
+            target.Owner.Model,
+            target.Model);
     }
 
     private bool IsWorkbenchBusy => IsBusy || IsDocumentBusy;
