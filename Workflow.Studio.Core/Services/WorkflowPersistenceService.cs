@@ -85,6 +85,7 @@ public sealed class WorkflowPersistenceService : IWorkflowPersistenceService
             NodeTypeId = node.NodeTypeId,
             X = node.Layout.X,
             Y = node.Layout.Y,
+            IsBreakpointEnabled = node.IsBreakpointEnabled,
             Settings = CreateSettingsDocument(node.Settings)
         };
     }
@@ -116,6 +117,7 @@ public sealed class WorkflowPersistenceService : IWorkflowPersistenceService
         {
             var node = _nodeFactory.CreateNode(nodeDocument.NodeTypeId, nodeDocument.X, nodeDocument.Y, nodeDocument.NodeId);
             ApplySettings(node, nodeDocument.Settings);
+            node.SetBreakpointEnabled(nodeDocument.IsBreakpointEnabled);
             workflow.AddNode(node);
         }
 
@@ -243,6 +245,8 @@ public sealed class WorkflowPersistenceService : IWorkflowPersistenceService
         public double X { get; init; }
 
         public double Y { get; init; }
+
+        public bool IsBreakpointEnabled { get; init; }
 
         public Dictionary<string, WorkflowValueDocument> Settings { get; init; } = new(StringComparer.OrdinalIgnoreCase);
     }

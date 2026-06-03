@@ -44,6 +44,8 @@ public sealed class NodeViewModel : ObservableObject
 
     public string NodeTypeText => $"节点类型: {Model.NodeTypeId}";
 
+    public string DebugStateText => Model.IsBreakpointEnabled ? "断点已启用" : "无断点";
+
     public int SettingsCount => GetSettingsEntries().Count;
 
     public string SettingsSummary => BuildSettingsSummary();
@@ -73,11 +75,21 @@ public sealed class NodeViewModel : ObservableObject
                 OnPropertyChanged(nameof(StatusText));
                 OnPropertyChanged(nameof(PreviewText));
                 OnPropertyChanged(nameof(NodeTypeText));
+                OnPropertyChanged(nameof(HasError));
+                OnPropertyChanged(nameof(ErrorText));
             }
         }
     }
 
     public string StatusText => Status.ToString();
+
+    public bool IsBreakpointEnabled => Model.IsBreakpointEnabled;
+
+    public bool HasError => !string.IsNullOrWhiteSpace(Model.LastErrorMessage);
+
+    public string ErrorText => string.IsNullOrWhiteSpace(Model.LastErrorMessage) ? "无错误" : Model.LastErrorMessage!;
+
+    public string LastMessageText => string.IsNullOrWhiteSpace(Model.LastMessage) ? "暂无执行消息" : Model.LastMessage!;
 
     public string PortSummary => $"{InputPorts.Count} in / {OutputPorts.Count} out";
 
@@ -116,6 +128,11 @@ public sealed class NodeViewModel : ObservableObject
         OnPropertyChanged(nameof(SettingsCount));
         OnPropertyChanged(nameof(SettingsSummary));
         OnPropertyChanged(nameof(HasEditableSettings));
+        OnPropertyChanged(nameof(IsBreakpointEnabled));
+        OnPropertyChanged(nameof(DebugStateText));
+        OnPropertyChanged(nameof(HasError));
+        OnPropertyChanged(nameof(ErrorText));
+        OnPropertyChanged(nameof(LastMessageText));
     }
 
     public void NotifySettingsChanged()
@@ -124,6 +141,13 @@ public sealed class NodeViewModel : ObservableObject
         OnPropertyChanged(nameof(SettingsSummary));
         OnPropertyChanged(nameof(HasEditableSettings));
         OnPropertyChanged(nameof(PreviewText));
+    }
+
+    public void SetBreakpointEnabled(bool isEnabled)
+    {
+        Model.SetBreakpointEnabled(isEnabled);
+        OnPropertyChanged(nameof(IsBreakpointEnabled));
+        OnPropertyChanged(nameof(DebugStateText));
     }
 
     private static ObservableCollection<PortGroupViewModel> BuildGroups(IEnumerable<PortViewModel> ports)

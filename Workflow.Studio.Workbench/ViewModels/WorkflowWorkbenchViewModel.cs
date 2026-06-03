@@ -15,10 +15,14 @@ namespace Workflow.Studio.Workbench.ViewModels;
 
 public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 {
+    private const double ViewportPadding = 120d;
+    private const double EstimatedNodeWidth = 220d;
+    private const double EstimatedNodeHeight = 164d;
     private readonly WorkflowEngine _workflowEngine;
     private readonly NodeFactory _nodeFactory;
     private readonly WorkflowEventHub _eventHub;
     private readonly IWorkflowConnectionValidator _connectionValidator;
+    private readonly IWorkflowDebugController _debugController;
     private readonly IWorkflowPersistenceService _workflowPersistenceService;
     private readonly IWorkflowDocumentPickerService _documentPickerService;
     private readonly SemaphoreSlim _executionGate = new(1, 1);
@@ -62,11 +66,19 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     [ObservableProperty]
     private ConnectionViewModel? _selectedConnection;
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ResumeExecutionCommand))]
+    private bool _isExecutionPaused;
+
+    [ObservableProperty]
+    private string? _pausedNodeName;
+
     public WorkflowWorkbenchViewModel(
         WorkflowEngine workflowEngine,
         NodeFactory nodeFactory,
         WorkflowEventHub eventHub,
         IWorkflowConnectionValidator connectionValidator,
+        IWorkflowDebugController debugController,
         IWorkflowPersistenceService workflowPersistenceService,
         IWorkflowDocumentPickerService documentPickerService)
     {
@@ -74,17 +86,21 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         _nodeFactory = nodeFactory;
         _eventHub = eventHub;
         _connectionValidator = connectionValidator;
+        _debugController = debugController;
         _workflowPersistenceService = workflowPersistenceService;
         _documentPickerService = documentPickerService;
         WorkbenchThemeManager.EnsureInitialized();
         WorkbenchThemeManager.ThemeChanged += OnThemeChanged;
         _eventHub.NodeStatusChanged += OnNodeStatusChanged;
         _eventHub.PortValueChanged += OnPortValueChanged;
+        _debugController.LogEmitted += OnLogEmitted;
+        _debugController.BreakpointHit += OnBreakpointHit;
 
         Nodes = [];
         Connections = [];
         SelectedNodes = [];
         SelectedConnections = [];
+        ExecutionLogs = [];
         AvailableNodes = new ObservableCollection<NodeLibraryItemViewModel>(
             _nodeFactory.GetAvailableNodes().Select(descriptor => new NodeLibraryItemViewModel(descriptor)));
         PendingConnection = new PendingConnectionViewModel(this);
@@ -98,6 +114,13 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         DisconnectConnectorCommand = new RelayCommand<object?>(DisconnectConnector, CanDisconnectConnector);
         AddNodeCommand = new RelayCommand<NodeLibraryItemViewModel?>(AddNode);
         ToggleThemeCommand = new RelayCommand(ToggleTheme);
+        ResumeExecutionCommand = new RelayCommand(ResumeExecution, CanResumeExecution);
+        ToggleBreakpointCommand = new RelayCommand(ToggleBreakpoint, CanToggleBreakpoint);
+        FitGraphCommand = new RelayCommand(FitGraphToViewport, CanFitGraphToViewport);
+        FitSelectionCommand = new RelayCommand(FitSelectionToViewport, CanFitSelectionToViewport);
+        ResetViewportCommand = new RelayCommand(ResetViewport);
+        SelectAllNodesCommand = new RelayCommand(SelectAllNodes, CanSelectAllNodes);
+        ClearExecutionLogCommand = new RelayCommand(ClearExecutionLog, CanClearExecutionLog);
 
         SelectedNodes.CollectionChanged += OnSelectionCollectionChanged;
         SelectedConnections.CollectionChanged += OnSelectionCollectionChanged;
@@ -115,6 +138,8 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     public ObservableCollection<ConnectionViewModel> SelectedConnections { get; }
 
     public ObservableCollection<NodeLibraryItemViewModel> AvailableNodes { get; }
+
+    public ObservableCollection<ExecutionLogItemViewModel> ExecutionLogs { get; }
 
     public PendingConnectionViewModel PendingConnection { get; }
 
@@ -138,6 +163,20 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
     public IRelayCommand ToggleThemeCommand { get; }
 
+    public IRelayCommand ResumeExecutionCommand { get; }
+
+    public IRelayCommand ToggleBreakpointCommand { get; }
+
+    public IRelayCommand FitGraphCommand { get; }
+
+    public IRelayCommand FitSelectionCommand { get; }
+
+    public IRelayCommand ResetViewportCommand { get; }
+
+    public IRelayCommand SelectAllNodesCommand { get; }
+
+    public IRelayCommand ClearExecutionLogCommand { get; }
+
     public string WorkflowStateText => IsBusy ? "执行中" : IsDocumentBusy ? "处理中" : "就绪";
 
     public string WorkflowDocumentText => string.IsNullOrWhiteSpace(CurrentWorkflowFilePath)
@@ -155,6 +194,12 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     public string ViewportText => $"视口 X {ViewportLocation.X:0} · Y {ViewportLocation.Y:0} · 缩放 {ViewportZoom:P0}";
 
     public string SelectionText => $"已选节点 {SelectedNodes.Count} · 已选连线 {SelectedConnections.Count}";
+
+    public string DebugStateText => IsExecutionPaused
+        ? $"断点暂停于 {PausedNodeName}"
+        : "调试会话空闲";
+
+    public string ExecutionLogSummary => $"日志 {ExecutionLogs.Count}";
 
     public void NotifyNodeSettingsChanged(NodeViewModel node)
     {
@@ -276,6 +321,36 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         return !IsWorkbenchBusy && (SelectedNodes.Count > 0 || SelectedConnections.Count > 0);
     }
 
+    private bool CanResumeExecution()
+    {
+        return IsExecutionPaused;
+    }
+
+    private bool CanToggleBreakpoint()
+    {
+        return !IsWorkbenchBusy && SelectedNode is not null;
+    }
+
+    private bool CanFitGraphToViewport()
+    {
+        return Nodes.Count > 0;
+    }
+
+    private bool CanFitSelectionToViewport()
+    {
+        return SelectedNodes.Count > 0;
+    }
+
+    private bool CanSelectAllNodes()
+    {
+        return Nodes.Count > 0;
+    }
+
+    private bool CanClearExecutionLog()
+    {
+        return ExecutionLogs.Count > 0;
+    }
+
     private bool CanRemoveNode(NodeViewModel? node)
     {
         return !IsWorkbenchBusy && node is not null;
@@ -363,6 +438,10 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
             }
 
             IsBusy = true;
+            IsExecutionPaused = false;
+            PausedNodeName = null;
+            ExecutionLogs.Clear();
+            ClearNodeRuntimeHighlights();
             StatusMessage = "正在执行工作流图...";
 
             // Offload workflow execution so synchronous work inside nodes does not block the UI thread.
@@ -385,6 +464,8 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
             if (enteredExecutionGate)
             {
                 IsBusy = false;
+                IsExecutionPaused = false;
+                PausedNodeName = null;
                 _executionGate.Release();
             }
         }
@@ -399,7 +480,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
         foreach (var node in _workflow.Nodes)
         {
-            node.SetStatus(NodeStatus.Ready);
+            node.ClearRuntimeState();
 
             foreach (var port in node.InputPorts.Concat(node.OutputPorts))
             {
@@ -409,7 +490,71 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
 
         RefreshGraphVisualState();
         GlobalVariablesText = "尚未执行";
+        ExecutionLogs.Clear();
+        IsExecutionPaused = false;
+        PausedNodeName = null;
         StatusMessage = "工作流状态已重置。";
+    }
+
+    private void ResumeExecution()
+    {
+        _debugController.Resume();
+        IsExecutionPaused = false;
+        StatusMessage = "已继续执行工作流。";
+    }
+
+    private void ToggleBreakpoint()
+    {
+        if (SelectedNode is null)
+        {
+            return;
+        }
+
+        SelectedNode.SetBreakpointEnabled(!SelectedNode.IsBreakpointEnabled);
+        SelectedNode.Refresh();
+        StatusMessage = SelectedNode.IsBreakpointEnabled
+            ? $"已为节点启用断点: {SelectedNode.Title}"
+            : $"已移除节点断点: {SelectedNode.Title}";
+    }
+
+    private void FitGraphToViewport()
+    {
+        ApplyViewportToBounds(Nodes.Select(node => node.Location).ToList());
+        StatusMessage = "已适配全部节点到当前视口。";
+    }
+
+    private void FitSelectionToViewport()
+    {
+        ApplyViewportToBounds(SelectedNodes.Select(node => node.Location).ToList());
+        StatusMessage = "已适配当前选中节点到视口。";
+    }
+
+    private void ResetViewport()
+    {
+        ViewportZoom = 1d;
+        ViewportLocation = new Point(0d, 0d);
+        StatusMessage = "已重置缩放与视口位置。";
+    }
+
+    private void SelectAllNodes()
+    {
+        SelectedNodes.Clear();
+
+        foreach (var node in Nodes)
+        {
+            SelectedNodes.Add(node);
+        }
+
+        SelectedConnections.Clear();
+        StatusMessage = $"已选中全部节点，共 {SelectedNodes.Count} 个。";
+    }
+
+    private void ClearExecutionLog()
+    {
+        ExecutionLogs.Clear();
+        ClearExecutionLogCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(ExecutionLogSummary));
+        StatusMessage = "已清空执行日志。";
     }
 
     private void DeleteSelection()
@@ -530,6 +675,13 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
     private void NotifyToolbarStateChanged()
     {
         OnPropertyChanged(nameof(WorkflowGraphSummary));
+        OnPropertyChanged(nameof(ExecutionLogSummary));
+        FitGraphCommand.NotifyCanExecuteChanged();
+        FitSelectionCommand.NotifyCanExecuteChanged();
+        SelectAllNodesCommand.NotifyCanExecuteChanged();
+        ClearExecutionLogCommand.NotifyCanExecuteChanged();
+        ToggleBreakpointCommand.NotifyCanExecuteChanged();
+        ResumeExecutionCommand.NotifyCanExecuteChanged();
     }
 
     private void ToggleTheme()
@@ -553,6 +705,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         RemoveNodeCommand.NotifyCanExecuteChanged();
         RemoveConnectionCommand.NotifyCanExecuteChanged();
         DisconnectConnectorCommand.NotifyCanExecuteChanged();
+        ToggleBreakpointCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnIsDocumentBusyChanged(bool value)
@@ -565,11 +718,13 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         RemoveNodeCommand.NotifyCanExecuteChanged();
         RemoveConnectionCommand.NotifyCanExecuteChanged();
         DisconnectConnectorCommand.NotifyCanExecuteChanged();
+        ToggleBreakpointCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnSelectedNodeChanged(NodeViewModel? value)
     {
         RemoveNodeCommand.NotifyCanExecuteChanged();
+        ToggleBreakpointCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnSelectedConnectionChanged(ConnectionViewModel? value)
@@ -621,6 +776,49 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         var x = 120 + (index % 3) * 320;
         var y = 280 + (index / 3) * 220;
         return new Point(x, y);
+    }
+
+    private void ApplyViewportToBounds(IReadOnlyList<Point> nodeLocations)
+    {
+        if (nodeLocations.Count == 0)
+        {
+            return;
+        }
+
+        var left = nodeLocations.Min(location => location.X) - ViewportPadding;
+        var top = nodeLocations.Min(location => location.Y) - ViewportPadding;
+        var right = nodeLocations.Max(location => location.X + EstimatedNodeWidth) + ViewportPadding;
+        var bottom = nodeLocations.Max(location => location.Y + EstimatedNodeHeight) + ViewportPadding;
+        var boundsWidth = Math.Max(1d, right - left);
+        var boundsHeight = Math.Max(1d, bottom - top);
+
+        if (ViewportSize.Width <= 0 || ViewportSize.Height <= 0)
+        {
+            ViewportLocation = new Point(left, top);
+            return;
+        }
+
+        var zoomX = ViewportSize.Width / boundsWidth;
+        var zoomY = ViewportSize.Height / boundsHeight;
+        var zoom = Math.Clamp(Math.Min(zoomX, zoomY), MinViewportZoom, MaxViewportZoom);
+        var worldViewportWidth = ViewportSize.Width / zoom;
+        var worldViewportHeight = ViewportSize.Height / zoom;
+
+        ViewportZoom = zoom;
+        ViewportLocation = new Point(
+            left - ((worldViewportWidth - boundsWidth) / 2d),
+            top - ((worldViewportHeight - boundsHeight) / 2d));
+    }
+
+    private void ClearNodeRuntimeHighlights()
+    {
+        foreach (var node in _workflow.Nodes)
+        {
+            node.SetLastError(null);
+            node.SetLastMessage(null);
+        }
+
+        RefreshGraphVisualState();
     }
 
     private bool RemoveNodeInternal(NodeViewModel node, bool updateVisualState = true)
@@ -713,6 +911,7 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
         DeleteSelectionCommand.NotifyCanExecuteChanged();
         DisconnectConnectorCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(SelectionText));
+        FitSelectionCommand.NotifyCanExecuteChanged();
     }
 
     private void OnNodeStatusChanged(object? sender, NodeStatusChangedEventArgs e)
@@ -742,6 +941,37 @@ public sealed partial class WorkflowWorkbenchViewModel : ObservableObject
             node.FindPort(e.PortId)?.Refresh();
             node.Refresh();
         }
+    }
+
+    private void OnLogEmitted(object? sender, WorkflowLogEventArgs e)
+    {
+        if (Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            _ = dispatcher.InvokeAsync(() => OnLogEmitted(sender, e));
+            return;
+        }
+
+        ExecutionLogs.Insert(0, new ExecutionLogItemViewModel(e.Entry));
+        while (ExecutionLogs.Count > 200)
+        {
+            ExecutionLogs.RemoveAt(ExecutionLogs.Count - 1);
+        }
+
+        OnPropertyChanged(nameof(ExecutionLogSummary));
+        ClearExecutionLogCommand.NotifyCanExecuteChanged();
+    }
+
+    private void OnBreakpointHit(object? sender, BreakpointHitEventArgs e)
+    {
+        if (Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            _ = dispatcher.InvokeAsync(() => OnBreakpointHit(sender, e));
+            return;
+        }
+
+        IsExecutionPaused = true;
+        PausedNodeName = e.NodeName;
+        StatusMessage = $"命中断点：{e.NodeName}";
     }
 
     private static string BuildGlobalVariablesText(IEnumerable<KeyValuePair<string, object?>> globalVariables, string emptyText)

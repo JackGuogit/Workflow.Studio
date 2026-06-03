@@ -19,6 +19,7 @@ public enum PortStatus
 public enum NodeStatus
 {
     Ready,
+    Paused,
     Running,
     Success,
     Failed
@@ -156,6 +157,12 @@ public sealed class NodeData : INode
 
     public NodeStatus Status { get; private set; } = NodeStatus.Ready;
 
+    public bool IsBreakpointEnabled { get; private set; }
+
+    public string? LastMessage { get; private set; }
+
+    public string? LastErrorMessage { get; private set; }
+
     public NodeLayoutData Layout { get; } = new();
 
     public INodeSettings? Settings => _settings;
@@ -240,6 +247,28 @@ public sealed class NodeData : INode
     public void SetStatus(NodeStatus status)
     {
         Status = status;
+    }
+
+    public void SetBreakpointEnabled(bool isEnabled)
+    {
+        IsBreakpointEnabled = isEnabled;
+    }
+
+    public void SetLastMessage(string? message)
+    {
+        LastMessage = message;
+    }
+
+    public void SetLastError(string? errorMessage)
+    {
+        LastErrorMessage = errorMessage;
+    }
+
+    public void ClearRuntimeState()
+    {
+        LastMessage = null;
+        LastErrorMessage = null;
+        Status = NodeStatus.Ready;
     }
 }
 

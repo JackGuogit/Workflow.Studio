@@ -383,6 +383,10 @@
                         Command="{Binding LoadWorkflowCommand}"
                         Content="加载工作流"
                         Style="{StaticResource WorkbenchToolbarButtonStyle}" />
+                    <Button
+                        Command="{Binding ResumeExecutionCommand}"
+                        Content="继续执行"
+                        Style="{StaticResource WorkbenchToolbarButtonStyle}" />
                 </StackPanel>
 
                 <StackPanel
@@ -448,6 +452,11 @@
                             Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
                             Text="{Binding StatusMessage}"
                             TextWrapping="Wrap" />
+                        <TextBlock
+                            Margin="0,4,0,0"
+                            Foreground="{DynamicResource WorkflowWorkbench.WarningBrush}"
+                            Text="{Binding DebugStateText}"
+                            TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
             </Grid>
@@ -469,6 +478,8 @@
                         <RowDefinition Height="*" MinHeight="180" />
                         <RowDefinition Height="8" />
                         <RowDefinition Height="220" MinHeight="120" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="260" MinHeight="180" />
                     </Grid.RowDefinitions>
 
                     <Border
@@ -577,6 +588,84 @@
                             </ScrollViewer>
                         </DockPanel>
                     </Border>
+
+                    <GridSplitter
+                        Grid.Row="3"
+                        Margin="0,12"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Background="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
+                        ResizeBehavior="PreviousAndNext"
+                        ResizeDirection="Rows"
+                        ShowsPreview="True" />
+
+                    <Border
+                        Grid.Row="4"
+                        Margin="0,20,0,0"
+                        Padding="14"
+                        Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
+                        <DockPanel LastChildFill="True">
+                            <StackPanel DockPanel.Dock="Top">
+                                <TextBlock
+                                    Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
+                                    Text="执行日志" />
+                                <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
+                                    <TextBlock
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="{Binding ExecutionLogSummary}" />
+                                    <Button
+                                        Margin="12,0,0,0"
+                                        Command="{Binding ClearExecutionLogCommand}"
+                                        Content="清空日志"
+                                        Style="{StaticResource WorkbenchToolbarButtonStyle}" />
+                                </StackPanel>
+                            </StackPanel>
+                            <ScrollViewer Margin="0,12,0,0" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding ExecutionLogs}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type viewModels:ExecutionLogItemViewModel}">
+                                            <Border
+                                                Margin="0,0,0,8"
+                                                Padding="10"
+                                                Background="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}"
+                                                BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="10">
+                                                <DockPanel LastChildFill="True">
+                                                    <Border
+                                                        DockPanel.Dock="Right"
+                                                        Padding="8,2"
+                                                        Background="{Binding AccentBrush}"
+                                                        CornerRadius="999">
+                                                        <TextBlock
+                                                            FontSize="11"
+                                                            FontWeight="SemiBold"
+                                                            Foreground="White"
+                                                            Text="{Binding LevelText}" />
+                                                    </Border>
+                                                    <StackPanel>
+                                                        <TextBlock
+                                                            Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                                            Text="{Binding TimestampText}" />
+                                                        <TextBlock
+                                                            Margin="0,2,0,0"
+                                                            FontWeight="SemiBold"
+                                                            Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
+                                                            Text="{Binding NodeText}" />
+                                                        <TextBlock
+                                                            Margin="0,4,0,0"
+                                                            Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
+                                                            Text="{Binding Message}"
+                                                            TextWrapping="Wrap" />
+                                                    </StackPanel>
+                                                </DockPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </DockPanel>
+                    </Border>
                 </Grid>
             </Border>
 
@@ -630,6 +719,12 @@
                         ViewportZoom="{Binding ViewportZoom}">
                         <nodify:NodifyEditor.InputBindings>
                             <KeyBinding Key="Delete" Command="{Binding DeleteSelectionCommand}" />
+                            <KeyBinding Key="A" Modifiers="Control" Command="{Binding SelectAllNodesCommand}" />
+                            <KeyBinding Key="B" Modifiers="Control" Command="{Binding ToggleBreakpointCommand}" />
+                            <KeyBinding Key="F" Modifiers="Control" Command="{Binding FitGraphCommand}" />
+                            <KeyBinding Key="F" Modifiers="Control+Shift" Command="{Binding FitSelectionCommand}" />
+                            <KeyBinding Key="D0" Modifiers="Control" Command="{Binding ResetViewportCommand}" />
+                            <KeyBinding Key="F5" Command="{Binding ResumeExecutionCommand}" />
                         </nodify:NodifyEditor.InputBindings>
 
                         <nodify:NodifyEditor.ItemContainerStyle>
@@ -745,6 +840,10 @@
                             <TextBlock
                                 Margin="0,4,0,0"
                                 Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                Text="快捷键: Ctrl+A 全选 / Ctrl+B 断点 / Ctrl+F 全图 / Ctrl+Shift+F 适配选中 / Ctrl+0 重置缩放 / F5 继续" />
+                            <TextBlock
+                                Margin="0,4,0,0"
+                                Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                                 Text="{Binding StatusMessage}"
                                 TextWrapping="Wrap" />
                         </StackPanel>
@@ -815,6 +914,33 @@
                                     Margin="0,6,0,0"
                                     Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
                                     Text="{Binding SelectedNode.PortSummary, StringFormat=端口: {0}}" />
+                                <TextBlock
+                                    Margin="0,6,0,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="{Binding SelectedNode.DebugStateText, TargetNullValue=调试状态: 无}" />
+                                <TextBlock
+                                    Margin="0,6,0,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
+                                    Text="{Binding SelectedNode.LastMessageText, TargetNullValue=暂无执行消息}"
+                                    TextWrapping="Wrap" />
+                                <TextBlock
+                                    Margin="0,6,0,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.ErrorBrush}"
+                                    Text="{Binding SelectedNode.ErrorText, TargetNullValue=无错误}"
+                                    TextWrapping="Wrap" />
+                                <StackPanel Margin="0,12,0,0" Orientation="Horizontal">
+                                    <Button
+                                        HorizontalAlignment="Left"
+                                        Command="{Binding ToggleBreakpointCommand}"
+                                        Content="切换断点"
+                                        Style="{StaticResource WorkbenchToolbarButtonStyle}" />
+                                    <Button
+                                        Margin="8,0,0,0"
+                                        HorizontalAlignment="Left"
+                                        Command="{Binding FitSelectionCommand}"
+                                        Content="定位选中"
+                                        Style="{StaticResource WorkbenchToolbarButtonStyle}" />
+                                </StackPanel>
                                 <Button
                                     Margin="0,12,0,0"
                                     HorizontalAlignment="Left"

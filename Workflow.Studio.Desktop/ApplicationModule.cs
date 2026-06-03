@@ -64,6 +64,10 @@ public sealed class ApplicationModule : Module
             .As<IWorkflowConnectionValidator>()
             .SingleInstance();
 
+        builder.RegisterType<WorkflowDebugController>()
+            .As<IWorkflowDebugController>()
+            .SingleInstance();
+
         builder.RegisterType<WorkflowPersistenceService>()
             .As<IWorkflowPersistenceService>()
             .SingleInstance();

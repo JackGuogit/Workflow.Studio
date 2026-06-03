@@ -10,18 +10,21 @@ public sealed class WorkflowEngine
     private readonly NodeManager _nodeManager;
     private readonly WorkflowEventHub _eventHub;
     private readonly IWorkflowConnectionValidator _connectionValidator;
+    private readonly IWorkflowDebugController _debugController;
     private readonly SemaphoreSlim _executionGate = new(1, 1);
 
     public WorkflowEngine(
         PluginManager pluginManager,
         NodeManager nodeManager,
         WorkflowEventHub eventHub,
-        IWorkflowConnectionValidator connectionValidator)
+        IWorkflowConnectionValidator connectionValidator,
+        IWorkflowDebugController debugController)
     {
         _pluginManager = pluginManager;
         _nodeManager = nodeManager;
         _eventHub = eventHub;
         _connectionValidator = connectionValidator;
+        _debugController = debugController;
     }
 
     public event EventHandler<NodeStatusChangedEventArgs>? NodeStatusChanged;
@@ -45,14 +48,18 @@ public sealed class WorkflowEngine
             _nodeManager.AttachWorkflow(workflow);
             _connectionValidator.EnsureWorkflowIsValid(workflow);
             ResetWorkflowState(workflow);
+            _debugController.StartSession();
+            _debugController.EmitLog(WorkflowLogLevel.Info, $"准备执行工作流，节点数 {workflow.Nodes.Count}，连线数 {workflow.Connections.Count}。");
             await _pluginManager.InitializeAsync(cancellationToken);
 
             var context = new CoreExecutionContext(workflow.GlobalVariables);
             var executionBatches = BuildExecutionBatches(workflow);
 
-            foreach (var batch in executionBatches)
+            for (var batchIndex = 0; batchIndex < executionBatches.Count; batchIndex++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                var batch = executionBatches[batchIndex];
+                _debugController.EmitLog(WorkflowLogLevel.Debug, $"开始执行批次 {batchIndex + 1}/{executionBatches.Count}，节点数 {batch.Count}。");
 
                 var batchTasks = batch
                     .Select(node => ExecuteNodeAsync(workflow, node, context, cancellationToken))
@@ -62,10 +69,17 @@ public sealed class WorkflowEngine
             }
 
             SyncGlobalVariables(workflow, context);
+            _debugController.EmitLog(WorkflowLogLevel.Info, $"执行完成，共生成 {context.History.Count} 条节点记录。");
             return context;
+        }
+        catch (Exception ex)
+        {
+            _debugController.EmitLog(WorkflowLogLevel.Error, $"执行中断：{ex.Message}");
+            throw;
         }
         finally
         {
+            _debugController.CompleteSession();
             if (enteredExecutionGate)
             {
                 _executionGate.Release();
@@ -148,7 +162,14 @@ public sealed class WorkflowEngine
 
         try
         {
+            if (node.IsBreakpointEnabled)
+            {
+                UpdateNodeStatus(node, NodeStatus.Paused);
+                await _debugController.PauseAtBreakpointAsync(node, cancellationToken);
+            }
+
             UpdateNodeStatus(node, NodeStatus.Running);
+            _debugController.EmitLog(WorkflowLogLevel.Info, $"开始执行节点: {node.Metadata.Name}", node);
 
             var nodeType = _nodeManager.GetNodeType(node.NodeTypeId);
             var request = new NodeExecutionRequest
@@ -162,13 +183,22 @@ public sealed class WorkflowEngine
             PropagateOutputs(workflow, node, context);
 
             UpdateNodeStatus(node, NodeStatus.Success);
+            node.SetLastMessage(result.Message);
+            node.SetLastError(null);
             CaptureExecutionArtifacts(node, result.Message, startedAt, inputSnapshot, context);
+            _debugController.EmitLog(
+                WorkflowLogLevel.Info,
+                string.IsNullOrWhiteSpace(result.Message) ? $"节点执行成功: {node.Metadata.Name}" : result.Message,
+                node);
         }
         catch (Exception ex)
         {
             UpdateNodeStatus(node, NodeStatus.Failed);
             MarkPortsFailed(node);
+            node.SetLastError(ex.Message);
+            node.SetLastMessage(null);
             CaptureExecutionArtifacts(node, ex.Message, startedAt, inputSnapshot, context);
+            _debugController.EmitLog(WorkflowLogLevel.Error, ex.Message, node);
             throw;
         }
     }
@@ -235,7 +265,7 @@ public sealed class WorkflowEngine
     {
         foreach (var node in workflow.Nodes)
         {
-            node.SetStatus(NodeStatus.Ready);
+            node.ClearRuntimeState();
 
             foreach (var port in node.InputPorts.Concat(node.OutputPorts))
             {
