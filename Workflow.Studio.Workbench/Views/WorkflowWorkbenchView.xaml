@@ -80,6 +80,39 @@
                 </Style.Triggers>
             </Style>
 
+            <Style x:Key="ExecutionLogRowStyle" TargetType="Border">
+                <Setter Property="Margin" Value="0,0,0,6" />
+                <Setter Property="Padding" Value="10,8" />
+                <Setter Property="Background" Value="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource WorkflowWorkbench.PanelBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding LevelText}" Value="WARNING">
+                        <Setter Property="Background" Value="#14F59E0B" />
+                        <Setter Property="BorderBrush" Value="#66F59E0B" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding LevelText}" Value="ERROR">
+                        <Setter Property="Background" Value="#14EF4444" />
+                        <Setter Property="BorderBrush" Value="#66EF4444" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style x:Key="ExecutionLogMessageTextStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{DynamicResource WorkflowWorkbench.TextBrush}" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding LevelText}" Value="WARNING">
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding LevelText}" Value="ERROR">
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Foreground" Value="{DynamicResource WorkflowWorkbench.ErrorBrush}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
             <DrawingBrush
                 x:Key="CanvasSmallGridBrush"
                 Drawing="{StaticResource WorkflowWorkbench.SmallGridGeometry}"
@@ -478,8 +511,6 @@
                         <RowDefinition Height="*" MinHeight="180" />
                         <RowDefinition Height="8" />
                         <RowDefinition Height="220" MinHeight="120" />
-                        <RowDefinition Height="8" />
-                        <RowDefinition Height="260" MinHeight="180" />
                     </Grid.RowDefinitions>
 
                     <Border
@@ -588,84 +619,6 @@
                             </ScrollViewer>
                         </DockPanel>
                     </Border>
-
-                    <GridSplitter
-                        Grid.Row="3"
-                        Margin="0,12"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Center"
-                        Background="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
-                        ResizeBehavior="PreviousAndNext"
-                        ResizeDirection="Rows"
-                        ShowsPreview="True" />
-
-                    <Border
-                        Grid.Row="4"
-                        Margin="0,20,0,0"
-                        Padding="14"
-                        Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
-                        <DockPanel LastChildFill="True">
-                            <StackPanel DockPanel.Dock="Top">
-                                <TextBlock
-                                    Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
-                                    Text="执行日志" />
-                                <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
-                                    <TextBlock
-                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                        Text="{Binding ExecutionLogSummary}" />
-                                    <Button
-                                        Margin="12,0,0,0"
-                                        Command="{Binding ClearExecutionLogCommand}"
-                                        Content="清空日志"
-                                        Style="{StaticResource WorkbenchToolbarButtonStyle}" />
-                                </StackPanel>
-                            </StackPanel>
-                            <ScrollViewer Margin="0,12,0,0" VerticalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding ExecutionLogs}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type viewModels:ExecutionLogItemViewModel}">
-                                            <Border
-                                                Margin="0,0,0,8"
-                                                Padding="10"
-                                                Background="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}"
-                                                BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="10">
-                                                <DockPanel LastChildFill="True">
-                                                    <Border
-                                                        DockPanel.Dock="Right"
-                                                        Padding="8,2"
-                                                        Background="{Binding AccentBrush}"
-                                                        CornerRadius="999">
-                                                        <TextBlock
-                                                            FontSize="11"
-                                                            FontWeight="SemiBold"
-                                                            Foreground="White"
-                                                            Text="{Binding LevelText}" />
-                                                    </Border>
-                                                    <StackPanel>
-                                                        <TextBlock
-                                                            Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                                            Text="{Binding TimestampText}" />
-                                                        <TextBlock
-                                                            Margin="0,2,0,0"
-                                                            FontWeight="SemiBold"
-                                                            Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
-                                                            Text="{Binding NodeText}" />
-                                                        <TextBlock
-                                                            Margin="0,4,0,0"
-                                                            Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
-                                                            Text="{Binding Message}"
-                                                            TextWrapping="Wrap" />
-                                                    </StackPanel>
-                                                </DockPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </DockPanel>
-                    </Border>
                 </Grid>
             </Border>
 
@@ -679,12 +632,20 @@
                 ResizeDirection="Columns"
                 ShowsPreview="True" />
 
-            <Border
+            <Grid
                 Grid.Column="2"
-                Margin="0,16,16,16"
-                Background="{DynamicResource WorkflowWorkbench.CanvasOverlayBrush}"
-                CornerRadius="18">
-                <Grid ClipToBounds="True">
+                Margin="0,16,16,16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="6*" MinHeight="320" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="2*" MinHeight="140" />
+                </Grid.RowDefinitions>
+
+                <Border
+                    Grid.Row="0"
+                    Background="{DynamicResource WorkflowWorkbench.CanvasOverlayBrush}"
+                    CornerRadius="18">
+                    <Grid ClipToBounds="True">
                     <Rectangle Fill="{DynamicResource WorkflowWorkbench.CanvasOverlayBrush}" />
                     <Rectangle
                         Fill="{StaticResource CanvasLargeGridBrush}"
@@ -961,8 +922,209 @@
                             </Border.Style>
                         </Border>
                     </StackPanel>
-                </Grid>
-            </Border>
+                    </Grid>
+                </Border>
+
+                <GridSplitter
+                    Grid.Row="1"
+                    Height="10"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    Background="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
+                    ResizeBehavior="PreviousAndNext"
+                    ResizeDirection="Rows"
+                    ShowsPreview="True"
+                    ToolTip="拖动以调整画布与执行日志区域高度" />
+
+                <Border
+                    Grid.Row="2"
+                    MinHeight="140"
+                    Padding="14"
+                    Style="{StaticResource WorkflowWorkbench.SurfaceCardStyle}">
+                    <Grid Grid.IsSharedSizeScope="True">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock
+                                    Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
+                                    Text="执行日志" />
+                                <TextBlock
+                                    Margin="0,6,0,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="显示最近执行输出，方便在编辑画布时快速查看运行反馈。" />
+                            </StackPanel>
+
+                            <StackPanel
+                                Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                Orientation="Horizontal">
+                                <Border
+                                    Margin="0,0,10,0"
+                                    Padding="10,4"
+                                    VerticalAlignment="Center"
+                                    Background="{DynamicResource WorkflowWorkbench.SubtleBackgroundBrush}"
+                                    CornerRadius="999">
+                                    <TextBlock
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="{Binding ExecutionLogSummary}" />
+                                </Border>
+                                <Button
+                                    Height="32"
+                                    MinWidth="88"
+                                    Padding="12,0"
+                                    Command="{Binding ClearExecutionLogCommand}"
+                                    Content="清空日志"
+                                    Style="{StaticResource WorkbenchToolbarButtonStyle}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border
+                            Grid.Row="1"
+                            Margin="0,12,0,0"
+                            Padding="10,8"
+                            Background="{DynamicResource WorkflowWorkbench.SubtleBackgroundBrush}"
+                            BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ExecutionLogTimeColumn" />
+                                    <ColumnDefinition Width="*" MinWidth="120" SharedSizeGroup="ExecutionLogNodeColumn" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ExecutionLogLevelColumn" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    Grid.Column="0"
+                                    Margin="0,0,12,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="时间" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="0,0,12,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="节点" />
+                                <TextBlock
+                                    Grid.Column="2"
+                                    Margin="0,0,12,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="级别" />
+                                <TextBlock
+                                    Grid.Column="3"
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="消息" />
+                            </Grid>
+                        </Border>
+
+                        <Grid Grid.Row="2" Margin="0,10,0,0">
+                            <ScrollViewer
+                                x:Name="ExecutionLogScrollViewer"
+                                VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding ExecutionLogs}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type viewModels:ExecutionLogItemViewModel}">
+                                            <Border
+                                                Style="{StaticResource ExecutionLogRowStyle}"
+                                                ToolTip="{Binding Message}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ExecutionLogTimeColumn" />
+                                                        <ColumnDefinition Width="*" MinWidth="120" SharedSizeGroup="ExecutionLogNodeColumn" />
+                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ExecutionLogLevelColumn" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock
+                                                        Grid.Column="0"
+                                                        Margin="0,0,12,0"
+                                                        VerticalAlignment="Center"
+                                                        FontFamily="Consolas"
+                                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                                        Text="{Binding TimestampText}" />
+
+                                                    <DockPanel
+                                                        Grid.Column="1"
+                                                        Margin="0,0,12,0"
+                                                        VerticalAlignment="Center"
+                                                        LastChildFill="True">
+                                                        <Border
+                                                            Width="8"
+                                                            Height="8"
+                                                            Margin="0,0,8,0"
+                                                            VerticalAlignment="Center"
+                                                            Background="{Binding AccentBrush}"
+                                                            CornerRadius="4" />
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
+                                                            Text="{Binding NodeText}"
+                                                            TextTrimming="CharacterEllipsis" />
+                                                    </DockPanel>
+
+                                                    <Border
+                                                        Grid.Column="2"
+                                                        Margin="0,0,12,0"
+                                                        Padding="8,2"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center"
+                                                        Background="{Binding AccentBrush}"
+                                                        CornerRadius="999">
+                                                        <TextBlock
+                                                            FontSize="11"
+                                                            FontWeight="SemiBold"
+                                                            Foreground="White"
+                                                            Text="{Binding LevelText}" />
+                                                    </Border>
+
+                                                    <TextBlock
+                                                        Grid.Column="3"
+                                                        VerticalAlignment="Center"
+                                                        Style="{StaticResource ExecutionLogMessageTextStyle}"
+                                                        Text="{Binding Message}"
+                                                        ToolTip="{Binding Message}" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <Border
+                                Padding="16"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Background="{DynamicResource WorkflowWorkbench.SubtleBackgroundBrush}"
+                                BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                IsHitTestVisible="False">
+                                <TextBlock
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="暂无执行日志，运行工作流后将在这里显示最近输出。" />
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ExecutionLogs.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

@@ -1,6 +1,8 @@
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Workflow.Studio.Nodify;
 using Workflow.Studio.Workbench.ViewModels;
 
@@ -10,6 +12,7 @@ public partial class WorkflowWorkbenchView : UserControl
 {
     private Point _libraryDragStartPoint;
     private bool _isLibraryDragPending;
+    private INotifyCollectionChanged? _executionLogs;
 
     static WorkflowWorkbenchView()
     {
@@ -19,6 +22,9 @@ public partial class WorkflowWorkbenchView : UserControl
     public WorkflowWorkbenchView()
     {
         InitializeComponent();
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
+        DataContextChanged += OnDataContextChanged;
     }
 
     private void LibraryNode_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -110,5 +116,62 @@ public partial class WorkflowWorkbenchView : UserControl
         }
 
         e.Handled = true;
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        AttachExecutionLogNotifications(DataContext);
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        DetachExecutionLogNotifications();
+    }
+
+    private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        AttachExecutionLogNotifications(e.NewValue);
+    }
+
+    private void AttachExecutionLogNotifications(object? dataContext)
+    {
+        if (dataContext is WorkflowWorkbenchViewModel existingViewModel
+            && ReferenceEquals(_executionLogs, existingViewModel.ExecutionLogs))
+        {
+            return;
+        }
+
+        DetachExecutionLogNotifications();
+
+        if (dataContext is not WorkflowWorkbenchViewModel workbenchViewModel)
+        {
+            return;
+        }
+
+        _executionLogs = workbenchViewModel.ExecutionLogs;
+        _executionLogs.CollectionChanged += OnExecutionLogsCollectionChanged;
+    }
+
+    private void DetachExecutionLogNotifications()
+    {
+        if (_executionLogs is null)
+        {
+            return;
+        }
+
+        _executionLogs.CollectionChanged -= OnExecutionLogsCollectionChanged;
+        _executionLogs = null;
+    }
+
+    private void OnExecutionLogsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.Action != NotifyCollectionChangedAction.Add || e.NewItems is null || e.NewItems.Count == 0)
+        {
+            return;
+        }
+
+        Dispatcher.BeginInvoke(
+            DispatcherPriority.Background,
+            new Action(() => ExecutionLogScrollViewer?.ScrollToTop()));
     }
 }
