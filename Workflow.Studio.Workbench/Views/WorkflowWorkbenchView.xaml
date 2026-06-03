@@ -130,6 +130,92 @@
                 Viewport="0 0 120 120"
                 ViewportUnits="Absolute" />
 
+            <Style x:Key="WorkbenchMinimapViewportStyle" TargetType="Rectangle">
+                <Setter Property="Stroke" Value="{DynamicResource WorkflowWorkbench.AccentBrush}" />
+                <Setter Property="StrokeThickness" Value="2" />
+                <Setter Property="StrokeLineJoin" Value="Round" />
+                <Setter Property="StrokeEndLineCap" Value="Round" />
+                <Setter Property="StrokeStartLineCap" Value="Round" />
+                <Setter Property="RadiusX" Value="8" />
+                <Setter Property="RadiusY" Value="8" />
+                <Setter Property="Fill">
+                    <Setter.Value>
+                        <SolidColorBrush Color="{StaticResource WorkflowWorkbench.AccentColor}" Opacity="0.18" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <DataTemplate x:Key="WorkbenchMinimapNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
+                <Grid>
+                    <Border
+                        x:Name="MinimapNodeAccent"
+                        Margin="10,10,10,0"
+                        VerticalAlignment="Top"
+                        Background="{DynamicResource WorkflowWorkbench.AccentBrush}"
+                        CornerRadius="3"
+                        Height="18" />
+                    <Border
+                        Margin="10,38,10,0"
+                        VerticalAlignment="Top"
+                        Background="#33FFFFFF"
+                        CornerRadius="2"
+                        Height="10" />
+                    <Border
+                        Margin="10,56,34,0"
+                        VerticalAlignment="Top"
+                        Background="#24FFFFFF"
+                        CornerRadius="2"
+                        Height="8" />
+                    <Border
+                        Margin="10,70,64,0"
+                        VerticalAlignment="Top"
+                        Background="#1AFFFFFF"
+                        CornerRadius="2"
+                        Height="8" />
+                </Grid>
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Category}" Value="Source">
+                        <Setter TargetName="MinimapNodeAccent" Property="Background" Value="#FB923C" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Category}" Value="Transform">
+                        <Setter TargetName="MinimapNodeAccent" Property="Background" Value="#FACC15" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Category}" Value="Output">
+                        <Setter TargetName="MinimapNodeAccent" Property="Background" Value="#38BDF8" />
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+
+            <Style
+                x:Key="WorkbenchMinimapItemStyle"
+                BasedOn="{StaticResource WorkflowWorkbench.MinimapItemStyle}"
+                TargetType="{x:Type nodify:MinimapItem}">
+                <Setter Property="Location" Value="{Binding Location}" />
+                <Setter Property="Width" Value="200" />
+                <Setter Property="Height" Value="140" />
+                <Setter Property="Background" Value="{DynamicResource WorkflowWorkbench.SubtleBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource WorkflowWorkbench.PanelBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Opacity" Value="0.96" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Status}" Value="{x:Static models:NodeStatus.Paused}">
+                        <Setter Property="BorderBrush" Value="{DynamicResource WorkflowWorkbench.SecondaryAccentBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}" Value="{x:Static models:NodeStatus.Ready}">
+                        <Setter Property="BorderBrush" Value="{DynamicResource WorkflowWorkbench.WarningBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}" Value="{x:Static models:NodeStatus.Running}">
+                        <Setter Property="BorderBrush" Value="{DynamicResource WorkflowWorkbench.WarningBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}" Value="{x:Static models:NodeStatus.Success}">
+                        <Setter Property="BorderBrush" Value="{DynamicResource WorkflowWorkbench.SuccessBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}" Value="{x:Static models:NodeStatus.Failed}">
+                        <Setter Property="BorderBrush" Value="{DynamicResource WorkflowWorkbench.ErrorBrush}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
             <DataTemplate x:Key="PortGroupChipTemplate" DataType="{x:Type viewModels:PortGroupViewModel}">
                 <Border Style="{StaticResource WorkbenchPortGroupChipStyle}">
                     <StackPanel Orientation="Horizontal">
@@ -754,19 +840,14 @@
                         BorderThickness="1"
                         ItemsSource="{Binding ItemsSource, ElementName=Editor}"
                         ResizeToViewport="True"
+                        ViewportStyle="{StaticResource WorkbenchMinimapViewportStyle}"
                         ViewportLocation="{Binding ViewportLocation, ElementName=Editor}"
                         ViewportSize="{Binding ViewportSize, ElementName=Editor}">
                         <nodify:Minimap.ItemTemplate>
-                            <DataTemplate DataType="{x:Type viewModels:NodeViewModel}">
-                                <Grid />
-                            </DataTemplate>
+                            <StaticResource ResourceKey="WorkbenchMinimapNodeTemplate" />
                         </nodify:Minimap.ItemTemplate>
                         <nodify:Minimap.ItemContainerStyle>
-                            <Style TargetType="{x:Type nodify:MinimapItem}">
-                                <Setter Property="Location" Value="{Binding Location}" />
-                                <Setter Property="Width" Value="200" />
-                                <Setter Property="Height" Value="140" />
-                            </Style>
+                            <StaticResource ResourceKey="WorkbenchMinimapItemStyle" />
                         </nodify:Minimap.ItemContainerStyle>
                     </nodify:Minimap>
 
