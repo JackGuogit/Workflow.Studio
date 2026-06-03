@@ -770,45 +770,103 @@
                         </nodify:Minimap.ItemContainerStyle>
                     </nodify:Minimap>
 
-                    <Border
+                    <Grid
                         Margin="20"
-                        Padding="14"
                         HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        Background="{DynamicResource WorkflowWorkbench.CanvasCalloutBackgroundBrush}"
-                        BorderBrush="{DynamicResource WorkflowWorkbench.CanvasCalloutBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="14"
-                        IsHitTestVisible="False">
-                        <StackPanel>
+                        VerticalAlignment="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <ToggleButton
+                            x:Name="CanvasCalloutToggle"
+                            Padding="14,12"
+                            HorizontalAlignment="Left"
+                            Background="{DynamicResource WorkflowWorkbench.CanvasCalloutBackgroundBrush}"
+                            BorderBrush="{DynamicResource WorkflowWorkbench.CanvasCalloutBorderBrush}"
+                            BorderThickness="1"
+                            IsChecked="True"
+                            ToolTip="展开或收起图编辑器说明">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border
+                                        x:Name="HeaderBorder"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="14">
+                                        <DockPanel LastChildFill="True">
+                                            <TextBlock
+                                                x:Name="IndicatorText"
+                                                Margin="12,0,0,0"
+                                                VerticalAlignment="Center"
+                                                DockPanel.Dock="Right"
+                                                Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                                Text="展开" />
+                                            <ContentPresenter VerticalAlignment="Center" />
+                                        </DockPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="HeaderBorder" Property="CornerRadius" Value="14,14,0,0" />
+                                            <Setter TargetName="IndicatorText" Property="Text" Value="收起" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
                             <TextBlock
                                 FontSize="16"
                                 FontWeight="SemiBold"
                                 Foreground="{DynamicResource WorkflowWorkbench.CanvasTextBrush}"
                                 Text="Graph Editor" />
-                            <TextBlock
-                                Margin="0,6,0,0"
-                                Foreground="{DynamicResource WorkflowWorkbench.CanvasCalloutSecondaryTextBrush}"
-                                Text="拖拽节点调整布局，拖动连接点创建连线，Ctrl+拖动已连接输入端口可重定向连线，双击节点编辑设置。" />
-                            <TextBlock
-                                Margin="0,6,0,0"
-                                Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                Text="{Binding ViewportText}" />
-                            <TextBlock
-                                Margin="0,4,0,0"
-                                Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                Text="{Binding SelectionText}" />
-                            <TextBlock
-                                Margin="0,4,0,0"
-                                Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                Text="快捷键: Ctrl+A 全选 / Ctrl+B 断点 / Ctrl+F 全图 / Ctrl+Shift+F 适配选中 / Ctrl+0 重置缩放 / F5 继续" />
-                            <TextBlock
-                                Margin="0,4,0,0"
-                                Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                Text="{Binding StatusMessage}"
-                                TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Border>
+                        </ToggleButton>
+
+                        <Border
+                            Grid.Row="1"
+                            Margin="0,-1,0,0"
+                            Padding="14,0,14,14"
+                            HorizontalAlignment="Left"
+                            Background="{DynamicResource WorkflowWorkbench.CanvasCalloutBackgroundBrush}"
+                            BorderBrush="{DynamicResource WorkflowWorkbench.CanvasCalloutBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="0,0,14,14"
+                            IsHitTestVisible="False">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=CanvasCalloutToggle}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel>
+                                <TextBlock
+                                    Margin="0,6,0,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.CanvasCalloutSecondaryTextBrush}"
+                                    Text="拖拽节点调整布局，拖动连接点创建连线，Ctrl+拖动已连接输入端口可重定向连线，双击节点编辑设置。" />
+                                <TextBlock
+                                    Margin="0,6,0,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="{Binding ViewportText}" />
+                                <TextBlock
+                                    Margin="0,4,0,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="{Binding SelectionText}" />
+                                <TextBlock
+                                    Margin="0,4,0,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="快捷键: Ctrl+A 全选 / Ctrl+B 断点 / Ctrl+F 全图 / Ctrl+Shift+F 适配选中 / Ctrl+0 重置缩放 / F5 继续" />
+                                <TextBlock
+                                    Margin="0,4,0,0"
+                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                    Text="{Binding StatusMessage}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
 
                     <StackPanel
                         Width="260"
