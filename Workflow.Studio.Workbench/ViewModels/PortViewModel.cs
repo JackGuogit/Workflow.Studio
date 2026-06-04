@@ -141,6 +141,7 @@ public sealed class PortViewModel : ObservableObject
             WorkflowPortSemanticTypes.TsvText => "TSV",
             WorkflowPortSemanticTypes.FilePath => "PATH",
             WorkflowPortSemanticTypes.PreviewText => "PREVIEW",
+            WorkflowPortSemanticTypes.ImageFrame => "IMG",
             _ => "GEN"
         };
     }
@@ -154,6 +155,7 @@ public sealed class PortViewModel : ObservableObject
             WorkflowPortSemanticTypes.TsvText => CreateBrush(0x10, 0xB9, 0x81),
             WorkflowPortSemanticTypes.FilePath => CreateBrush(0x8B, 0x5C, 0xF6),
             WorkflowPortSemanticTypes.PreviewText => CreateBrush(0xEC, 0x48, 0x99),
+            WorkflowPortSemanticTypes.ImageFrame => CreateBrush(0x14, 0xB8, 0xA6),
             _ => CreateBrush(0x6B, 0x72, 0x80)
         };
     }
@@ -167,6 +169,7 @@ public sealed class PortViewModel : ObservableObject
             WorkflowPortSemanticTypes.TsvText => CreateBrush(0x05, 0x96, 0x69),
             WorkflowPortSemanticTypes.FilePath => CreateBrush(0x7C, 0x3A, 0xED),
             WorkflowPortSemanticTypes.PreviewText => CreateBrush(0xDB, 0x27, 0x77),
+            WorkflowPortSemanticTypes.ImageFrame => CreateBrush(0x0F, 0x76, 0x66),
             _ => CreateBrush(0x4B, 0x55, 0x63)
         };
     }

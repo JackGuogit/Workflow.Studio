@@ -7,4 +7,5 @@ public static class WorkflowPortSemanticTypes
     public const string TsvText = "text/tab-separated-values";
     public const string PreviewText = "text/preview";
     public const string FilePath = "path/file";
+    public const string ImageFrame = "image/frame";
 }

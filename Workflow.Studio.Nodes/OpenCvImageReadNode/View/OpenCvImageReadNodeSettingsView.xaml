@@ -1,0 +1,51 @@
+<UserControl
+    x:Class="Workflow.Studio.Nodes.OpenCvImageRead.View.OpenCvImageReadNodeSettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="220"
+    d:DesignWidth="480">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock
+            FontSize="15"
+            FontWeight="SemiBold"
+            Text="图片文件路径" />
+
+        <TextBlock
+            Grid.Row="1"
+            Margin="0,8,0,0"
+            Foreground="#6B7280"
+            Text="支持相对路径或绝对路径，读取后输出工作流图片帧。"
+            TextWrapping="Wrap" />
+
+        <TextBox
+            Grid.Row="2"
+            Margin="0,12,0,0"
+            Padding="10"
+            Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBlock
+            Grid.Row="3"
+            Margin="0,16,0,0"
+            FontSize="15"
+            FontWeight="SemiBold"
+            Text="读取模式" />
+
+        <ComboBox
+            Grid.Row="4"
+            Margin="0,12,0,0"
+            Padding="10,6"
+            ItemsSource="{Binding AvailableReadModes}"
+            SelectedItem="{Binding ReadMode, UpdateSourceTrigger=PropertyChanged}" />
+    </Grid>
+</UserControl>

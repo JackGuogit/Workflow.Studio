@@ -24,6 +24,16 @@ public sealed class ApplicationModule : Module
             .As<IPreviewPlugin>()
             .SingleInstance();
 
+        builder.RegisterType<OpenCvImageCodecPlugin>()
+            .As<IWorkflowPlugin>()
+            .As<IOpenCvImageCodecPlugin>()
+            .SingleInstance();
+
+        builder.RegisterType<OpenCvImageProcessingPlugin>()
+            .As<IWorkflowPlugin>()
+            .As<IOpenCvImageProcessingPlugin>()
+            .SingleInstance();
+
         builder.Register(_ =>
             {
                 var pluginManager = new PluginManager();
@@ -47,6 +57,10 @@ public sealed class ApplicationModule : Module
                 nodeManager.RegisterType(new CsvToTsvTransformNode());
                 nodeManager.RegisterType(new PreviewNode(_.Resolve<IPreviewPlugin>()));
                 nodeManager.RegisterType(new TsvSaveNode());
+                nodeManager.RegisterType(new OpenCvImageReadNode(_.Resolve<IOpenCvImageCodecPlugin>()));
+                nodeManager.RegisterType(new OpenCvGrayscaleNode(_.Resolve<IOpenCvImageProcessingPlugin>()));
+                nodeManager.RegisterType(new OpenCvThresholdNode(_.Resolve<IOpenCvImageProcessingPlugin>()));
+                nodeManager.RegisterType(new OpenCvImageSaveNode(_.Resolve<IOpenCvImageCodecPlugin>()));
                 return nodeManager;
             })
             .SingleInstance();
