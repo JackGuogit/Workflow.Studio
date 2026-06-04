@@ -140,7 +140,7 @@
                 <Setter Property="RadiusY" Value="8" />
                 <Setter Property="Fill">
                     <Setter.Value>
-                        <SolidColorBrush Color="{StaticResource WorkflowWorkbench.AccentColor}" Opacity="0.18" />
+                        <SolidColorBrush Opacity="0.18" Color="{StaticResource WorkflowWorkbench.AccentColor}" />
                     </Setter.Value>
                 </Setter>
             </Style>
@@ -149,29 +149,29 @@
                 <Grid>
                     <Border
                         x:Name="MinimapNodeAccent"
+                        Height="18"
                         Margin="10,10,10,0"
                         VerticalAlignment="Top"
                         Background="{DynamicResource WorkflowWorkbench.AccentBrush}"
-                        CornerRadius="3"
-                        Height="18" />
+                        CornerRadius="3" />
                     <Border
+                        Height="10"
                         Margin="10,38,10,0"
                         VerticalAlignment="Top"
                         Background="#33FFFFFF"
-                        CornerRadius="2"
-                        Height="10" />
+                        CornerRadius="2" />
                     <Border
+                        Height="8"
                         Margin="10,56,34,0"
                         VerticalAlignment="Top"
                         Background="#24FFFFFF"
-                        CornerRadius="2"
-                        Height="8" />
+                        CornerRadius="2" />
                     <Border
+                        Height="8"
                         Margin="10,70,64,0"
                         VerticalAlignment="Top"
                         Background="#1AFFFFFF"
-                        CornerRadius="2"
-                        Height="8" />
+                        CornerRadius="2" />
                 </Grid>
                 <DataTemplate.Triggers>
                     <DataTrigger Binding="{Binding Category}" Value="Source">
@@ -372,10 +372,10 @@
                                     CornerRadius="10">
                                     <DockPanel LastChildFill="True">
                                         <Border
-                                            DockPanel.Dock="Right"
                                             Padding="8,2"
                                             Background="{Binding SemanticBadgeBackground}"
-                                            CornerRadius="999">
+                                            CornerRadius="999"
+                                            DockPanel.Dock="Right">
                                             <TextBlock
                                                 FontSize="11"
                                                 FontWeight="SemiBold"
@@ -411,10 +411,10 @@
                                     CornerRadius="10">
                                     <DockPanel LastChildFill="True">
                                         <Border
-                                            DockPanel.Dock="Right"
                                             Padding="8,2"
                                             Background="{Binding SemanticBadgeBackground}"
-                                            CornerRadius="999">
+                                            CornerRadius="999"
+                                            DockPanel.Dock="Right">
                                             <TextBlock
                                                 FontSize="11"
                                                 FontWeight="SemiBold"
@@ -718,9 +718,7 @@
                 ResizeDirection="Columns"
                 ShowsPreview="True" />
 
-            <Grid
-                Grid.Column="2"
-                Margin="0,16,16,16">
+            <Grid Grid.Column="2" Margin="0,16,16,16">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="6*" MinHeight="320" />
                     <RowDefinition Height="10" />
@@ -732,335 +730,350 @@
                     Background="{DynamicResource WorkflowWorkbench.CanvasOverlayBrush}"
                     CornerRadius="18">
                     <Grid ClipToBounds="True">
-                    <Rectangle Fill="{DynamicResource WorkflowWorkbench.CanvasOverlayBrush}" />
-                    <Rectangle
-                        Fill="{StaticResource CanvasLargeGridBrush}"
-                        IsHitTestVisible="False"
-                        Opacity="0.55" />
-                    <Rectangle
-                        Fill="{StaticResource CanvasSmallGridBrush}"
-                        IsHitTestVisible="False"
-                        Opacity="0.8" />
+                        <Rectangle Fill="{DynamicResource WorkflowWorkbench.CanvasOverlayBrush}" />
+                        <Rectangle
+                            Fill="{StaticResource CanvasLargeGridBrush}"
+                            IsHitTestVisible="False"
+                            Opacity="0.55" />
+                        <Rectangle
+                            Fill="{StaticResource CanvasSmallGridBrush}"
+                            IsHitTestVisible="False"
+                            Opacity="0.8" />
 
-                    <nodify:NodifyEditor
-                        x:Name="Editor"
-                        AllowDrop="True"
-                        CanSelectMultipleConnections="True"
-                        CanSelectMultipleItems="True"
-                        Connections="{Binding Connections}"
-                        DisconnectConnectorCommand="{Binding DisconnectConnectorCommand}"
-                        DragOver="Editor_DragOver"
-                        Drop="Editor_Drop"
-                        EnableRealtimeSelection="True"
-                        ItemsSource="{Binding Nodes}"
-                        MaxViewportZoom="{Binding MaxViewportZoom}"
-                        MinViewportZoom="{Binding MinViewportZoom}"
-                        PendingConnection="{Binding PendingConnection}"
-                        SelectedConnection="{Binding SelectedConnection}"
-                        SelectedConnections="{Binding SelectedConnections}"
-                        SelectedItem="{Binding SelectedNode}"
-                        SelectedItems="{Binding SelectedNodes}"
-                        Style="{StaticResource WorkflowWorkbench.EditorStyle}"
-                        ViewportLocation="{Binding ViewportLocation}"
-                        ViewportSize="{Binding ViewportSize, Mode=OneWayToSource}"
-                        ViewportZoom="{Binding ViewportZoom}">
-                        <nodify:NodifyEditor.InputBindings>
-                            <KeyBinding Key="Delete" Command="{Binding DeleteSelectionCommand}" />
-                            <KeyBinding Key="A" Modifiers="Control" Command="{Binding SelectAllNodesCommand}" />
-                            <KeyBinding Key="B" Modifiers="Control" Command="{Binding ToggleBreakpointCommand}" />
-                            <KeyBinding Key="F" Modifiers="Control" Command="{Binding FitGraphCommand}" />
-                            <KeyBinding Key="F" Modifiers="Control+Shift" Command="{Binding FitSelectionCommand}" />
-                            <KeyBinding Key="D0" Modifiers="Control" Command="{Binding ResetViewportCommand}" />
-                            <KeyBinding Key="F5" Command="{Binding ResumeExecutionCommand}" />
-                        </nodify:NodifyEditor.InputBindings>
+                        <nodify:NodifyEditor
+                            x:Name="Editor"
+                            AllowDrop="True"
+                            CanSelectMultipleConnections="True"
+                            CanSelectMultipleItems="True"
+                            Connections="{Binding Connections}"
+                            DisconnectConnectorCommand="{Binding DisconnectConnectorCommand}"
+                            DragOver="Editor_DragOver"
+                            Drop="Editor_Drop"
+                            EnableRealtimeSelection="True"
+                            ItemsSource="{Binding Nodes}"
+                            MaxViewportZoom="{Binding MaxViewportZoom}"
+                            MinViewportZoom="{Binding MinViewportZoom}"
+                            PendingConnection="{Binding PendingConnection}"
+                            SelectedConnection="{Binding SelectedConnection}"
+                            SelectedConnections="{Binding SelectedConnections}"
+                            SelectedItem="{Binding SelectedNode}"
+                            SelectedItems="{Binding SelectedNodes}"
+                            Style="{StaticResource WorkflowWorkbench.EditorStyle}"
+                            ViewportLocation="{Binding ViewportLocation}"
+                            ViewportSize="{Binding ViewportSize, Mode=OneWayToSource}"
+                            ViewportZoom="{Binding ViewportZoom}">
+                            <nodify:NodifyEditor.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeleteSelectionCommand}" />
+                                <KeyBinding
+                                    Key="A"
+                                    Command="{Binding SelectAllNodesCommand}"
+                                    Modifiers="Control" />
+                                <KeyBinding
+                                    Key="B"
+                                    Command="{Binding ToggleBreakpointCommand}"
+                                    Modifiers="Control" />
+                                <KeyBinding
+                                    Key="F"
+                                    Command="{Binding FitGraphCommand}"
+                                    Modifiers="Control" />
+                                <KeyBinding
+                                    Key="F"
+                                    Command="{Binding FitSelectionCommand}"
+                                    Modifiers="Control+Shift" />
+                                <KeyBinding
+                                    Key="D0"
+                                    Command="{Binding ResetViewportCommand}"
+                                    Modifiers="Control" />
+                                <KeyBinding Key="F5" Command="{Binding ResumeExecutionCommand}" />
+                            </nodify:NodifyEditor.InputBindings>
 
-                        <nodify:NodifyEditor.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource WorkbenchItemContainerStyle}" TargetType="{x:Type nodify:ItemContainer}" />
-                        </nodify:NodifyEditor.ItemContainerStyle>
+                            <nodify:NodifyEditor.ItemContainerStyle>
+                                <Style BasedOn="{StaticResource WorkbenchItemContainerStyle}" TargetType="{x:Type nodify:ItemContainer}" />
+                            </nodify:NodifyEditor.ItemContainerStyle>
 
-                        <nodify:NodifyEditor.ConnectionTemplate>
-                            <StaticResource ResourceKey="ConnectionTemplate" />
-                        </nodify:NodifyEditor.ConnectionTemplate>
+                            <nodify:NodifyEditor.ConnectionTemplate>
+                                <StaticResource ResourceKey="ConnectionTemplate" />
+                            </nodify:NodifyEditor.ConnectionTemplate>
 
-                        <nodify:NodifyEditor.PendingConnectionTemplate>
-                            <StaticResource ResourceKey="PendingConnectionTemplate" />
-                        </nodify:NodifyEditor.PendingConnectionTemplate>
+                            <nodify:NodifyEditor.PendingConnectionTemplate>
+                                <StaticResource ResourceKey="PendingConnectionTemplate" />
+                            </nodify:NodifyEditor.PendingConnectionTemplate>
 
-                        <nodify:NodifyEditor.ItemTemplate>
-                            <DataTemplate DataType="{x:Type viewModels:NodeViewModel}">
-                                <nodify:Node
-                                    Content="{Binding}"
-                                    ContentTemplate="{StaticResource CanvasNodeContentTemplate}"
-                                    HeaderTemplate="{StaticResource NodeHeaderTemplate}"
-                                    Input="{Binding InputPorts}"
-                                    MouseDoubleClick="Node_MouseDoubleClick"
-                                    Output="{Binding OutputPorts}"
-                                    Style="{StaticResource WorkflowWorkbench.NodeStyle}"
-                                    ToolTipService.ShowDuration="60000">
-                                    <nodify:Node.ToolTip>
-                                        <ToolTip
-                                            Content="{Binding}"
-                                            ContentTemplate="{StaticResource CanvasNodeToolTipTemplate}"
-                                            Placement="Mouse" />
-                                    </nodify:Node.ToolTip>
-                                    <nodify:Node.InputConnectorTemplate>
-                                        <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
-                                            <nodify:NodeInput
-                                                Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                                BorderBrush="{Binding SemanticAccentBrush}"
-                                                IsConnected="{Binding IsConnected}"
-                                                Style="{StaticResource WorkflowWorkbench.NodeInputStyle}"
-                                                ToolTip="{Binding ToolTipText}" />
-                                        </DataTemplate>
-                                    </nodify:Node.InputConnectorTemplate>
+                            <nodify:NodifyEditor.ItemTemplate>
+                                <DataTemplate DataType="{x:Type viewModels:NodeViewModel}">
+                                    <nodify:Node
+                                        Content="{Binding}"
+                                        ContentTemplate="{StaticResource CanvasNodeContentTemplate}"
+                                        HeaderTemplate="{StaticResource NodeHeaderTemplate}"
+                                        Input="{Binding InputPorts}"
+                                        MouseDoubleClick="Node_MouseDoubleClick"
+                                        Output="{Binding OutputPorts}"
+                                        Style="{StaticResource WorkflowWorkbench.NodeStyle}"
+                                        ToolTipService.ShowDuration="60000">
+                                        <nodify:Node.ToolTip>
+                                            <ToolTip
+                                                Content="{Binding}"
+                                                ContentTemplate="{StaticResource CanvasNodeToolTipTemplate}"
+                                                Placement="Mouse" />
+                                        </nodify:Node.ToolTip>
+                                        <nodify:Node.InputConnectorTemplate>
+                                            <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
+                                                <nodify:NodeInput
+                                                    Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                    BorderBrush="{Binding SemanticAccentBrush}"
+                                                    IsConnected="{Binding IsConnected}"
+                                                    Style="{StaticResource WorkflowWorkbench.NodeInputStyle}"
+                                                    ToolTip="{Binding ToolTipText}" />
+                                            </DataTemplate>
+                                        </nodify:Node.InputConnectorTemplate>
 
-                                    <nodify:Node.OutputConnectorTemplate>
-                                        <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
-                                            <nodify:NodeOutput
-                                                Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                                BorderBrush="{Binding SemanticAccentBrush}"
-                                                IsConnected="{Binding IsConnected}"
-                                                Style="{StaticResource WorkflowWorkbench.NodeOutputStyle}"
-                                                ToolTip="{Binding ToolTipText}" />
-                                        </DataTemplate>
-                                    </nodify:Node.OutputConnectorTemplate>
-                                </nodify:Node>
-                            </DataTemplate>
-                        </nodify:NodifyEditor.ItemTemplate>
-                    </nodify:NodifyEditor>
+                                        <nodify:Node.OutputConnectorTemplate>
+                                            <DataTemplate DataType="{x:Type viewModels:PortViewModel}">
+                                                <nodify:NodeOutput
+                                                    Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                    BorderBrush="{Binding SemanticAccentBrush}"
+                                                    IsConnected="{Binding IsConnected}"
+                                                    Style="{StaticResource WorkflowWorkbench.NodeOutputStyle}"
+                                                    ToolTip="{Binding ToolTipText}" />
+                                            </DataTemplate>
+                                        </nodify:Node.OutputConnectorTemplate>
+                                    </nodify:Node>
+                                </DataTemplate>
+                            </nodify:NodifyEditor.ItemTemplate>
+                        </nodify:NodifyEditor>
 
-                    <nodify:Minimap
-                        Width="260"
-                        Height="160"
-                        Margin="20"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Background="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}"
-                        BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
-                        BorderThickness="1"
-                        ItemsSource="{Binding ItemsSource, ElementName=Editor}"
-                        ResizeToViewport="True"
-                        ViewportStyle="{StaticResource WorkbenchMinimapViewportStyle}"
-                        ViewportLocation="{Binding ViewportLocation, ElementName=Editor}"
-                        ViewportSize="{Binding ViewportSize, ElementName=Editor}">
-                        <nodify:Minimap.ItemTemplate>
-                            <StaticResource ResourceKey="WorkbenchMinimapNodeTemplate" />
-                        </nodify:Minimap.ItemTemplate>
-                        <nodify:Minimap.ItemContainerStyle>
-                            <StaticResource ResourceKey="WorkbenchMinimapItemStyle" />
-                        </nodify:Minimap.ItemContainerStyle>
-                    </nodify:Minimap>
-
-                    <Grid
-                        Margin="20"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <ToggleButton
-                            x:Name="CanvasCalloutToggle"
-                            Padding="14,12"
-                            HorizontalAlignment="Left"
-                            Background="{DynamicResource WorkflowWorkbench.CanvasCalloutBackgroundBrush}"
-                            BorderBrush="{DynamicResource WorkflowWorkbench.CanvasCalloutBorderBrush}"
-                            BorderThickness="1"
-                            IsChecked="True"
-                            ToolTip="展开或收起图编辑器说明">
-                            <ToggleButton.Template>
-                                <ControlTemplate TargetType="ToggleButton">
-                                    <Border
-                                        x:Name="HeaderBorder"
-                                        Background="{TemplateBinding Background}"
-                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                        CornerRadius="14">
-                                        <DockPanel LastChildFill="True">
-                                            <TextBlock
-                                                x:Name="IndicatorText"
-                                                Margin="12,0,0,0"
-                                                VerticalAlignment="Center"
-                                                DockPanel.Dock="Right"
-                                                Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                                Text="展开" />
-                                            <ContentPresenter VerticalAlignment="Center" />
-                                        </DockPanel>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsChecked" Value="True">
-                                            <Setter TargetName="HeaderBorder" Property="CornerRadius" Value="14,14,0,0" />
-                                            <Setter TargetName="IndicatorText" Property="Text" Value="收起" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </ToggleButton.Template>
-                            <TextBlock
-                                FontSize="16"
-                                FontWeight="SemiBold"
-                                Foreground="{DynamicResource WorkflowWorkbench.CanvasTextBrush}"
-                                Text="Graph Editor" />
-                        </ToggleButton>
-
-                        <Border
-                            Grid.Row="1"
-                            Margin="0,-1,0,0"
-                            Padding="14,0,14,14"
-                            HorizontalAlignment="Left"
-                            Background="{DynamicResource WorkflowWorkbench.CanvasCalloutBackgroundBrush}"
-                            BorderBrush="{DynamicResource WorkflowWorkbench.CanvasCalloutBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="0,0,14,14"
-                            IsHitTestVisible="False">
-                            <Border.Style>
-                                <Style TargetType="Border">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=CanvasCalloutToggle}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                            <StackPanel>
-                                <TextBlock
-                                    Margin="0,6,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.CanvasCalloutSecondaryTextBrush}"
-                                    Text="拖拽节点调整布局，拖动连接点创建连线，Ctrl+拖动已连接输入端口可重定向连线，双击节点编辑设置。" />
-                                <TextBlock
-                                    Margin="0,6,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                    Text="{Binding ViewportText}" />
-                                <TextBlock
-                                    Margin="0,4,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                    Text="{Binding SelectionText}" />
-                                <TextBlock
-                                    Margin="0,4,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                    Text="快捷键: Ctrl+A 全选 / Ctrl+B 断点 / Ctrl+F 全图 / Ctrl+Shift+F 适配选中 / Ctrl+0 重置缩放 / F5 继续" />
-                                <TextBlock
-                                    Margin="0,4,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                    Text="{Binding StatusMessage}"
-                                    TextWrapping="Wrap" />
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-
-                    <StackPanel
-                        Width="260"
-                        Margin="20"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top">
-                        <Border
-                            Margin="0,0,0,10"
-                            Padding="14"
+                        <nodify:Minimap
+                            Width="260"
+                            Height="160"
+                            Margin="20"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
                             Background="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}"
                             BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="14">
-                            <StackPanel>
-                                <TextBlock
-                                    FontWeight="SemiBold"
-                                    Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
-                                    Text="选中连线" />
-                                <TextBlock
-                                    Margin="0,8,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                    Text="{Binding SelectedConnection.DisplayName, TargetNullValue=当前未选中连线}"
-                                    TextWrapping="Wrap" />
-                                <Button
-                                    Margin="0,12,0,0"
-                                    HorizontalAlignment="Left"
-                                    Command="{Binding RemoveConnectionCommand}"
-                                    CommandParameter="{Binding SelectedConnection}"
-                                    Content="删除连线"
-                                    Style="{StaticResource WorkbenchToolbarButtonStyle}" />
-                            </StackPanel>
-                            <Border.Style>
-                                <Style TargetType="Border">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedConnection}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                        </Border>
+                            ItemsSource="{Binding ItemsSource, ElementName=Editor}"
+                            ResizeToViewport="True"
+                            ViewportLocation="{Binding ViewportLocation, ElementName=Editor}"
+                            ViewportSize="{Binding ViewportSize, ElementName=Editor}"
+                            ViewportStyle="{StaticResource WorkbenchMinimapViewportStyle}">
+                            <nodify:Minimap.ItemTemplate>
+                                <StaticResource ResourceKey="WorkbenchMinimapNodeTemplate" />
+                            </nodify:Minimap.ItemTemplate>
+                            <nodify:Minimap.ItemContainerStyle>
+                                <StaticResource ResourceKey="WorkbenchMinimapItemStyle" />
+                            </nodify:Minimap.ItemContainerStyle>
+                        </nodify:Minimap>
 
-                        <Border
-                            Padding="14"
-                            Background="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}"
-                            BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="14">
-                            <StackPanel>
+                        <Grid
+                            Margin="20"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <ToggleButton
+                                x:Name="CanvasCalloutToggle"
+                                Padding="14,12"
+                                HorizontalAlignment="Left"
+                                Background="{DynamicResource WorkflowWorkbench.CanvasCalloutBackgroundBrush}"
+                                BorderBrush="{DynamicResource WorkflowWorkbench.CanvasCalloutBorderBrush}"
+                                BorderThickness="1"
+                                IsChecked="True"
+                                ToolTip="展开或收起图编辑器说明">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border
+                                            x:Name="HeaderBorder"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="14">
+                                            <DockPanel LastChildFill="True">
+                                                <TextBlock
+                                                    x:Name="IndicatorText"
+                                                    Margin="12,0,0,0"
+                                                    VerticalAlignment="Center"
+                                                    DockPanel.Dock="Right"
+                                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                                    Text="展开" />
+                                                <ContentPresenter VerticalAlignment="Center" />
+                                            </DockPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="HeaderBorder" Property="CornerRadius" Value="14,14,0,0" />
+                                                <Setter TargetName="IndicatorText" Property="Text" Value="收起" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
                                 <TextBlock
+                                    FontSize="16"
                                     FontWeight="SemiBold"
-                                    Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
-                                    Text="选中节点" />
-                                <TextBlock
-                                    Margin="0,8,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                    Text="{Binding SelectedNode.Title, TargetNullValue=当前未选中节点}" />
-                                <TextBlock
-                                    Margin="0,6,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                    Text="{Binding SelectedNode.Location, StringFormat=位置: {0}}" />
-                                <TextBlock
-                                    Margin="0,6,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                    Text="{Binding SelectedNode.PortSummary, StringFormat=端口: {0}}" />
-                                <TextBlock
-                                    Margin="0,6,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                    Text="{Binding SelectedNode.DebugStateText, TargetNullValue=调试状态: 无}" />
-                                <TextBlock
-                                    Margin="0,6,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
-                                    Text="{Binding SelectedNode.LastMessageText, TargetNullValue=暂无执行消息}"
-                                    TextWrapping="Wrap" />
-                                <TextBlock
-                                    Margin="0,6,0,0"
-                                    Foreground="{DynamicResource WorkflowWorkbench.ErrorBrush}"
-                                    Text="{Binding SelectedNode.ErrorText, TargetNullValue=无错误}"
-                                    TextWrapping="Wrap" />
-                                <StackPanel Margin="0,12,0,0" Orientation="Horizontal">
+                                    Foreground="{DynamicResource WorkflowWorkbench.CanvasTextBrush}"
+                                    Text="Graph Editor" />
+                            </ToggleButton>
+
+                            <Border
+                                Grid.Row="1"
+                                Margin="0,-1,0,0"
+                                Padding="14,0,14,14"
+                                HorizontalAlignment="Left"
+                                Background="{DynamicResource WorkflowWorkbench.CanvasCalloutBackgroundBrush}"
+                                BorderBrush="{DynamicResource WorkflowWorkbench.CanvasCalloutBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="0,0,14,14"
+                                IsHitTestVisible="False">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsChecked, ElementName=CanvasCalloutToggle}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <TextBlock
+                                        Margin="0,6,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.CanvasCalloutSecondaryTextBrush}"
+                                        Text="拖拽节点调整布局，拖动连接点创建连线，Ctrl+拖动已连接输入端口可重定向连线，双击节点编辑设置。" />
+                                    <TextBlock
+                                        Margin="0,6,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="{Binding ViewportText}" />
+                                    <TextBlock
+                                        Margin="0,4,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="{Binding SelectionText}" />
+                                    <TextBlock
+                                        Margin="0,4,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="快捷键: Ctrl+A 全选 / Ctrl+B 断点 / Ctrl+F 全图 / Ctrl+Shift+F 适配选中 / Ctrl+0 重置缩放 / F5 继续" />
+                                    <TextBlock
+                                        Margin="0,4,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="{Binding StatusMessage}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <StackPanel
+                            Width="260"
+                            Margin="20"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top">
+                            <Border
+                                Margin="0,0,0,10"
+                                Padding="14"
+                                Background="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}"
+                                BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="14">
+                                <StackPanel>
+                                    <TextBlock
+                                        FontWeight="SemiBold"
+                                        Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
+                                        Text="选中连线" />
+                                    <TextBlock
+                                        Margin="0,8,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="{Binding SelectedConnection.DisplayName, TargetNullValue=当前未选中连线}"
+                                        TextWrapping="Wrap" />
                                     <Button
+                                        Margin="0,12,0,0"
                                         HorizontalAlignment="Left"
-                                        Command="{Binding ToggleBreakpointCommand}"
-                                        Content="切换断点"
-                                        Style="{StaticResource WorkbenchToolbarButtonStyle}" />
-                                    <Button
-                                        Margin="8,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        Command="{Binding FitSelectionCommand}"
-                                        Content="定位选中"
+                                        Command="{Binding RemoveConnectionCommand}"
+                                        CommandParameter="{Binding SelectedConnection}"
+                                        Content="删除连线"
                                         Style="{StaticResource WorkbenchToolbarButtonStyle}" />
                                 </StackPanel>
-                                <Button
-                                    Margin="0,12,0,0"
-                                    HorizontalAlignment="Left"
-                                    Command="{Binding RemoveNodeCommand}"
-                                    CommandParameter="{Binding SelectedNode}"
-                                    Content="删除节点"
-                                    Style="{StaticResource WorkbenchToolbarButtonStyle}" />
-                            </StackPanel>
-                            <Border.Style>
-                                <Style TargetType="Border">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedNode}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                        </Border>
-                    </StackPanel>
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedConnection}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                            </Border>
+
+                            <Border
+                                Padding="14"
+                                Background="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}"
+                                BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="14">
+                                <StackPanel>
+                                    <TextBlock
+                                        FontWeight="SemiBold"
+                                        Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
+                                        Text="选中节点" />
+                                    <TextBlock
+                                        Margin="0,8,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="{Binding SelectedNode.Title, TargetNullValue=当前未选中节点}" />
+                                    <TextBlock
+                                        Margin="0,6,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="{Binding SelectedNode.Location, StringFormat=位置: {0}}" />
+                                    <TextBlock
+                                        Margin="0,6,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="{Binding SelectedNode.PortSummary, StringFormat=端口: {0}}" />
+                                    <TextBlock
+                                        Margin="0,6,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
+                                        Text="{Binding SelectedNode.DebugStateText, TargetNullValue=调试状态: 无}" />
+                                    <TextBlock
+                                        Margin="0,6,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.TextBrush}"
+                                        Text="{Binding SelectedNode.LastMessageText, TargetNullValue=暂无执行消息}"
+                                        TextWrapping="Wrap" />
+                                    <TextBlock
+                                        Margin="0,6,0,0"
+                                        Foreground="{DynamicResource WorkflowWorkbench.ErrorBrush}"
+                                        Text="{Binding SelectedNode.ErrorText, TargetNullValue=无错误}"
+                                        TextWrapping="Wrap" />
+                                    <StackPanel Margin="0,12,0,0" Orientation="Horizontal">
+                                        <Button
+                                            HorizontalAlignment="Left"
+                                            Command="{Binding ToggleBreakpointCommand}"
+                                            Content="切换断点"
+                                            Style="{StaticResource WorkbenchToolbarButtonStyle}" />
+                                        <Button
+                                            Margin="8,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            Command="{Binding FitSelectionCommand}"
+                                            Content="定位选中"
+                                            Style="{StaticResource WorkbenchToolbarButtonStyle}" />
+                                    </StackPanel>
+                                    <Button
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Left"
+                                        Command="{Binding RemoveNodeCommand}"
+                                        CommandParameter="{Binding SelectedNode}"
+                                        Content="删除节点"
+                                        Style="{StaticResource WorkbenchToolbarButtonStyle}" />
+                                </StackPanel>
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNode}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                            </Border>
+                        </StackPanel>
                     </Grid>
                 </Border>
 
@@ -1094,9 +1107,7 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock
-                                    Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}"
-                                    Text="执行日志" />
+                                <TextBlock Style="{StaticResource WorkflowWorkbench.SectionTitleTextStyle}" Text="执行日志" />
                                 <TextBlock
                                     Margin="0,6,0,0"
                                     Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
@@ -1113,9 +1124,7 @@
                                     VerticalAlignment="Center"
                                     Background="{DynamicResource WorkflowWorkbench.SubtleBackgroundBrush}"
                                     CornerRadius="999">
-                                    <TextBlock
-                                        Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                        Text="{Binding ExecutionLogSummary}" />
+                                    <TextBlock Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}" Text="{Binding ExecutionLogSummary}" />
                                 </Border>
                                 <Button
                                     Height="32"
@@ -1138,7 +1147,10 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" SharedSizeGroup="ExecutionLogTimeColumn" />
-                                    <ColumnDefinition Width="*" MinWidth="120" SharedSizeGroup="ExecutionLogNodeColumn" />
+                                    <ColumnDefinition
+                                        Width="*"
+                                        MinWidth="120"
+                                        SharedSizeGroup="ExecutionLogNodeColumn" />
                                     <ColumnDefinition Width="Auto" SharedSizeGroup="ExecutionLogLevelColumn" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
@@ -1165,19 +1177,18 @@
                         </Border>
 
                         <Grid Grid.Row="2" Margin="0,10,0,0">
-                            <ScrollViewer
-                                x:Name="ExecutionLogScrollViewer"
-                                VerticalScrollBarVisibility="Auto">
+                            <ScrollViewer x:Name="ExecutionLogScrollViewer" VerticalScrollBarVisibility="Auto">
                                 <ItemsControl ItemsSource="{Binding ExecutionLogs}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type viewModels:ExecutionLogItemViewModel}">
-                                            <Border
-                                                Style="{StaticResource ExecutionLogRowStyle}"
-                                                ToolTip="{Binding Message}">
+                                            <Border Style="{StaticResource ExecutionLogRowStyle}" ToolTip="{Binding Message}">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto" SharedSizeGroup="ExecutionLogTimeColumn" />
-                                                        <ColumnDefinition Width="*" MinWidth="120" SharedSizeGroup="ExecutionLogNodeColumn" />
+                                                        <ColumnDefinition
+                                                            Width="*"
+                                                            MinWidth="120"
+                                                            SharedSizeGroup="ExecutionLogNodeColumn" />
                                                         <ColumnDefinition Width="Auto" SharedSizeGroup="ExecutionLogLevelColumn" />
                                                         <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
@@ -1246,9 +1257,7 @@
                                 BorderThickness="1"
                                 CornerRadius="12"
                                 IsHitTestVisible="False">
-                                <TextBlock
-                                    Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}"
-                                    Text="暂无执行日志，运行工作流后将在这里显示最近输出。" />
+                                <TextBlock Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}" Text="暂无执行日志，运行工作流后将在这里显示最近输出。" />
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Visibility" Value="Collapsed" />
