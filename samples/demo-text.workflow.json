@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "variableDeclarations": [
+    { "name": "seedText", "typeId": "text/plain", "defaultValue": "DevWorkflow Studio" }
+  ],
+  "nodes": [
+    {
+      "nodeId": "node-source",
+      "nodeTypeId": "demo.node.text-source",
+      "x": 80,
+      "y": 120,
+      "settings": {},
+      "settingsBindings": [
+        { "setting": "text", "variable": "seedText" }
+      ]
+    },
+    {
+      "nodeId": "node-transform",
+      "nodeTypeId": "demo.node.uppercase-transform",
+      "x": 420,
+      "y": 120,
+      "settings": {}
+    },
+    {
+      "nodeId": "node-preview",
+      "nodeTypeId": "demo.node.preview",
+      "x": 760,
+      "y": 120,
+      "settings": {}
+    }
+  ],
+  "connections": [
+    {
+      "sourceNodeId": "node-source",
+      "sourcePortId": "content",
+      "targetNodeId": "node-transform",
+      "targetPortId": "incoming"
+    },
+    {
+      "sourceNodeId": "node-transform",
+      "sourcePortId": "result",
+      "targetNodeId": "node-preview",
+      "targetPortId": "incoming"
+    }
+  ]
+}

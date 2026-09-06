@@ -1,0 +1,35 @@
+<Window x:Class="Workflow.Studio.Workbench.Views.Editor.VariableMappingEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="变量映射编辑器"
+        Width="520"
+        Height="480"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Bottom">
+            <TextBlock x:Name="MessageText" Foreground="#C00" Margin="0,4" />
+            <Button Content="关闭" Width="100" HorizontalAlignment="Right" Click="OnCloseClicked" />
+        </StackPanel>
+
+        <GroupBox Header="添加映射" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" Margin="8">
+                <TextBlock Text="方向" VerticalAlignment="Center" />
+                <ComboBox x:Name="DirectionCombo" Width="70" Margin="6,0" SelectedIndex="0" />
+                <TextBlock Text="源" VerticalAlignment="Center" />
+                <TextBox x:Name="SourceBox" Width="110" Margin="6,0" />
+                <TextBlock Text="目标" VerticalAlignment="Center" />
+                <TextBox x:Name="TargetBox" Width="110" Margin="6,0" />
+                <Button Content="添加" Padding="10,3" Click="OnAddClicked" />
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="已有映射">
+            <DockPanel Margin="4">
+                <Button DockPanel.Dock="Bottom" Content="移除选中映射" Padding="10,3" Margin="0,6,0,0"
+                        HorizontalAlignment="Right" Click="OnRemoveClicked" />
+                <ListBox x:Name="MappingList" DisplayMemberPath="DisplayText" />
+            </DockPanel>
+        </GroupBox>
+    </DockPanel>
+</Window>

@@ -1,0 +1,34 @@
+<UserControl x:Class="Workflow.Studio.Workbench.Views.Editor.EditorWorkspaceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:editor="clr-namespace:Workflow.Studio.Workbench.Views.Editor"
+             d:DesignHeight="760"
+             d:DesignWidth="1200"
+             mc:Ignorable="d">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" BorderBrush="#CCC" BorderThickness="0,0,0,1" Padding="6,4">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="新建文档" Command="{Binding NewDocumentCommand}" Padding="10,3" />
+                <Button Content="关闭当前文档" Command="{Binding CloseActiveDocumentCommand}" Padding="10,3" Margin="8,0,0,0" />
+                <Button Content="保存当前文档" Command="{Binding SaveActiveDocumentCommand}" Padding="10,3" Margin="8,0,0,0" />
+                <Button Content="打开文档" Command="{Binding OpenDocumentCommand}" Padding="10,3" Margin="8,0,0,0" />
+            </StackPanel>
+        </Border>
+
+        <TabControl ItemsSource="{Binding Documents}"
+                    SelectedItem="{Binding ActiveDocument, Mode=TwoWay}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Title}" />
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <editor:WorkbenchView />
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+    </DockPanel>
+</UserControl>

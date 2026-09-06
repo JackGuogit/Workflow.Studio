@@ -5,24 +5,8 @@ using Workflow.Studio.Core.Plugins;
 
 namespace Workflow.Studio.Plugins.BuiltIn;
 
-public sealed class OpenCvImageCodecPlugin : IWorkflowPlugin, IOpenCvImageCodecPlugin
+public sealed class OpenCvImageCodecPlugin : IOpenCvImageCodecPlugin
 {
-    public PluginMetadata Metadata { get; } = new()
-    {
-        Id = "opencv.image-codec",
-        Name = "OpenCV Image Codec",
-        Description = "提供图片读取与保存能力，供 OpenCV 节点执行阶段调用。",
-        Publisher = "Workflow Studio",
-        Capabilities = ["OpenCvImageCodec"]
-    };
-
-    public ValueTask InitializeAsync(
-        PluginInitializationContext context,
-        CancellationToken cancellationToken)
-    {
-        return ValueTask.CompletedTask;
-    }
-
     public ValueTask<WorkflowImageFrame> LoadAsync(
         string filePath,
         WorkflowImageReadMode readMode,
@@ -83,30 +67,10 @@ public sealed class OpenCvImageCodecPlugin : IWorkflowPlugin, IOpenCvImageCodecP
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask DisposeAsync()
-    {
-        return ValueTask.CompletedTask;
-    }
 }
 
-public sealed class OpenCvImageProcessingPlugin : IWorkflowPlugin, IOpenCvImageProcessingPlugin
+public sealed class OpenCvImageProcessingPlugin : IOpenCvImageProcessingPlugin
 {
-    public PluginMetadata Metadata { get; } = new()
-    {
-        Id = "opencv.image-processing",
-        Name = "OpenCV Image Processing",
-        Description = "提供灰度化与二值化能力，供 OpenCV 节点执行阶段调用。",
-        Publisher = "Workflow Studio",
-        Capabilities = ["OpenCvImageProcessing"]
-    };
-
-    public ValueTask InitializeAsync(
-        PluginInitializationContext context,
-        CancellationToken cancellationToken)
-    {
-        return ValueTask.CompletedTask;
-    }
-
     public ValueTask<WorkflowImageFrame> ConvertToGrayscaleAsync(
         WorkflowImageFrame image,
         CancellationToken cancellationToken)
@@ -164,11 +128,6 @@ public sealed class OpenCvImageProcessingPlugin : IWorkflowPlugin, IOpenCvImageP
             result,
             grayscaleImage.Format,
             grayscaleImage.SourcePath);
-    }
-
-    public ValueTask DisposeAsync()
-    {
-        return ValueTask.CompletedTask;
     }
 
     private static Mat ConvertColor(Mat source, ColorConversionCodes conversionCode)

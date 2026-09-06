@@ -12,7 +12,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         _container = BuildContainer();
-        var mainWindow = _container.Resolve<MainWindow>();
+        var mainWindow = _container.Resolve<Views.WorkspaceHostWindow>();
         mainWindow.Show();
     }
 
