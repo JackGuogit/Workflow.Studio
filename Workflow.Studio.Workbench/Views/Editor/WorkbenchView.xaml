@@ -150,6 +150,27 @@
                BasedOn="{StaticResource WorkflowWorkbench.ItemContainerStyle}"
                TargetType="{x:Type nodify:ItemContainer}">
             <Setter Property="Location" Value="{Binding Location}" />
+            <Setter Property="ActualSize" Value="{Binding Size, Mode=OneWayToSource}" />
+        </Style>
+
+        <Style x:Key="WorkbenchNodeInputStyle"
+               BasedOn="{StaticResource WorkflowWorkbench.NodeInputStyle}"
+               TargetType="{x:Type nodify:NodeInput}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource WorkflowWorkbench.SuccessBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="WorkbenchNodeOutputStyle"
+               BasedOn="{StaticResource WorkflowWorkbench.NodeOutputStyle}"
+               TargetType="{x:Type nodify:NodeOutput}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource WorkflowWorkbench.AccentBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="WorkbenchMinimapItemStyle"
@@ -181,6 +202,7 @@
 
         <DrawingBrush x:Key="WorkbenchCanvasSmallGridBrush"
                       Drawing="{StaticResource WorkflowWorkbench.SmallGridGeometry}"
+                      Transform="{Binding ViewportTransform, ElementName=Editor}"
                       TileMode="Tile"
                       Viewport="0 0 24 24"
                       ViewportUnits="Absolute"
@@ -188,6 +210,7 @@
 
         <DrawingBrush x:Key="WorkbenchCanvasLargeGridBrush"
                       Drawing="{StaticResource WorkflowWorkbench.LargeGridGeometry}"
+                      Transform="{Binding ViewportTransform, ElementName=Editor}"
                       TileMode="Tile"
                       Viewport="0 0 120 120"
                       ViewportUnits="Absolute"
@@ -196,11 +219,14 @@
 
     <DockPanel Background="{DynamicResource WorkflowWorkbench.PageBackgroundBrush}">
         <Border DockPanel.Dock="Top" Padding="12,8" Background="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}">
-            <StackPanel Orientation="Horizontal">
+            <WrapPanel>
                 <Button Content="执行全部" Command="{Binding ExecuteAllCommand}" Padding="12,4" />
                 <Button Content="重置" Command="{Binding ResetCommand}" Padding="12,4" Margin="8,0,0,0" />
                 <Button Content="撤销" Command="{Binding UndoCommand}" Padding="10,4" Margin="8,0,0,0" />
                 <Button Content="重做" Command="{Binding RedoCommand}" Padding="10,4" Margin="4,0,0,0" />
+                <Button Content="删除选中" Command="{Binding DeleteSelectionCommand}" Padding="10,4" Margin="8,0,0,0" />
+                <Button Content="全图适配" Command="{Binding FitGraphCommand}" Padding="10,4" Margin="8,0,0,0" />
+                <Button Content="重置视口" Command="{Binding ResetViewportCommand}" Padding="10,4" Margin="8,0,0,0" />
                 <Button Content="继续执行" Command="{Binding ResumeCommand}" Padding="10,4" Margin="8,0,0,0" />
                 <Button Content="切换选中断点" Command="{Binding ToggleBreakpointCommand}" Padding="10,4" Margin="8,0,0,0" />
                 <Button Content="返回上级" Command="{Binding NavigateBackCommand}" Padding="12,4" Margin="8,0,0,0" />
@@ -213,23 +239,55 @@
                 <Button Content="编辑节点设置" Click="OnEditNodeSettingsClicked" Padding="8,4" Margin="8,0,0,0" />
                 <TextBlock Text="{Binding StatusMessage}" Margin="20,0,0,0" VerticalAlignment="Center"
                            Foreground="{DynamicResource WorkflowWorkbench.TextBrush}" />
-            </StackPanel>
+            </WrapPanel>
         </Border>
 
         <Border DockPanel.Dock="Left" Width="250"
                 Background="{DynamicResource WorkflowWorkbench.PanelBackgroundBrush}"
                 BorderBrush="{DynamicResource WorkflowWorkbench.PanelBorderBrush}"
                 BorderThickness="0,0,1,0" Padding="10">
-            <StackPanel>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                <TextBlock Text="节点库" FontWeight="Bold" />
+                <ItemsControl ItemsSource="{Binding AvailableNodes}" Margin="0,4,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button
+                                    HorizontalContentAlignment="Left"
+                                    Command="{Binding DataContext.AddNodeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding TypeId}"
+                                    PreviewMouseLeftButtonDown="OnLibraryNodeMouseDown"
+                                    Margin="0,2"
+                                    Padding="6,3">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding DisplayName}" />
+                                    <TextBlock Text=" 扩展" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource WorkflowWorkbench.AccentBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsExternal}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
                 <TextBlock Text="入口变量" FontWeight="Bold" />
                 <ItemsControl ItemsSource="{Binding EntryVariables}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Margin="0,2">
-                                <Run Text="{Binding Name, Mode=OneWay}" />
-                                <Run Text=" = " />
-                                <Run Text="{Binding Value, Mode=OneWay}" />
-                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" Margin="0,2">
+                                <TextBlock Text="{Binding Name, Mode=OneWay}" Width="110" TextTrimming="CharacterEllipsis" />
+                                <TextBox Text="{Binding Value, UpdateSourceTrigger=LostFocus}" Width="120" />
+                            </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -290,13 +348,18 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
         </Border>
 
         <Grid>
             <Rectangle Fill="{StaticResource WorkbenchCanvasLargeGridBrush}" IsHitTestVisible="False" />
             <Rectangle Fill="{StaticResource WorkbenchCanvasSmallGridBrush}" IsHitTestVisible="False" />
             <nodify:NodifyEditor x:Name="Editor"
+                             AllowDrop="True"
+                             InputGestures="{Binding EditorGestures}"
+                             DragOver="OnEditorDragOver"
+                             Drop="OnEditorDrop"
                              CanSelectMultipleItems="True"
                              CanSelectMultipleConnections="True"
                              ItemsSource="{Binding Nodes}"
@@ -348,7 +411,7 @@
                                 <nodify:NodeInput
                                     Anchor="{Binding Anchor, Mode=OneWayToSource}"
                                     IsConnected="{Binding IsConnected, Mode=OneWay}"
-                                    Style="{StaticResource WorkflowWorkbench.NodeInputStyle}"
+                                    Style="{StaticResource WorkbenchNodeInputStyle}"
                                     ToolTip="{Binding TypeId}" />
                             </DataTemplate>
                         </nodify:Node.InputConnectorTemplate>
@@ -357,7 +420,7 @@
                                 <nodify:NodeOutput
                                     Anchor="{Binding Anchor, Mode=OneWayToSource}"
                                     IsConnected="{Binding IsConnected, Mode=OneWay}"
-                                    Style="{StaticResource WorkflowWorkbench.NodeOutputStyle}"
+                                    Style="{StaticResource WorkbenchNodeOutputStyle}"
                                     ToolTip="{Binding TypeId}" />
                             </DataTemplate>
                         </nodify:Node.OutputConnectorTemplate>

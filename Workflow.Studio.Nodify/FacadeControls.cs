@@ -1,6 +1,21 @@
 namespace Workflow.Studio.Nodify;
 
 /// <summary>
+/// Nodify 手势配置的外观入口：业务层只依赖本类型，
+/// 需要定制时在这里统一修改默认手势。
+/// </summary>
+public static class NodifyGestures
+{
+    public static object CreateDefault()
+    {
+        var gestures = new global::Nodify.Interactivity.EditorGestures();
+        gestures.Editor.PanWithMouseWheel = true;
+        gestures.Editor.ZoomModifierKey = System.Windows.Input.ModifierKeys.Control;
+        return gestures;
+    }
+}
+
+/// <summary>
 /// Wraps <see cref="global::Nodify.NodifyEditor"/> so consumers depend on this assembly
 /// instead of referencing the third-party package directly from XAML.
 /// </summary>

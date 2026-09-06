@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Workflow.Studio.Core.Documents;
 using Workflow.Studio.Core.Session;
 using Workflow.Studio.Nodes.BuiltIn;
@@ -14,6 +17,40 @@ internal static class EditorHostFactory
         var registry = new WorkflowDefinitionRegistry();
         BuiltInNodeCatalog.RegisterAll(registry, codec, processing);
         return registry;
+    }
+
+    public static IReadOnlyList<string> LoadExtensionNodes(WorkflowDefinitionRegistry registry)
+    {
+        var directories = new List<string>();
+
+        var deployedExtensions = Path.Combine(AppContext.BaseDirectory, "extensions");
+        if (Directory.Exists(deployedExtensions))
+        {
+            directories.Add(deployedExtensions);
+        }
+
+        // 本地开发便利：直接加载 SDK 示例产物，便于在节点库中看到扩展节点。
+        var devSample = Path.GetFullPath(
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "samples", "SampleSdkNode", "bin", "Debug", "net10.0"));
+        if (Directory.Exists(devSample))
+        {
+            directories.Add(devSample);
+        }
+
+        var loaded = new List<string>();
+        foreach (var directory in directories)
+        {
+            try
+            {
+                loaded.AddRange(ExternalNodeLoader.LoadFromDirectory(registry, directory));
+            }
+            catch
+            {
+                // 目录不可用时静默跳过，不影响启动。
+            }
+        }
+
+        return loaded;
     }
 
     public static WorkflowDocument CreateDemoDocument()

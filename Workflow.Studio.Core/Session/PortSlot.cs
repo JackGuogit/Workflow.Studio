@@ -34,6 +34,9 @@ public sealed class PortSlot
 
     public bool HasValue => _hasValue;
 
+    /// <summary>展示用值（不参与门控语义，仅 UI 预览）。</summary>
+    public object? DisplayValue => _value;
+
     internal void SetSpec(object? spec)
     {
         Spec = spec;

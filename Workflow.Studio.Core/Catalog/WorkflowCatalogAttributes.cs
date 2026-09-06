@@ -90,16 +90,19 @@ public sealed class ValueTypeProviderAttribute : Attribute
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
 public sealed class WorkflowSettingAttribute : Attribute
 {
-    public WorkflowSettingAttribute(string displayName, string? editorKind = null)
+    public WorkflowSettingAttribute(string displayName, string? editorKind = null, Type? editorOptionsType = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
         DisplayName = displayName;
         EditorKind = editorKind;
+        EditorOptionsType = editorOptionsType;
     }
 
     public string DisplayName { get; }
 
     public string? EditorKind { get; }
+
+    public Type? EditorOptionsType { get; }
 
     public bool Bindable { get; init; }
 }

@@ -105,6 +105,39 @@ public sealed class EditorWorkspaceViewModelTests
         }
     }
 
+    [Fact]
+    public async Task RecentFiles_AreDeduplicatedAndNewestFirst()
+    {
+        var registry = new WorkflowDefinitionRegistry();
+        registry.Register("demo.node.text-source", new MinimalDefinition(), new NodeTypeDescriptor("demo.node.text-source", "输入节点"));
+        var workspace = new EditorWorkspaceViewModel(registry);
+        workspace.AddDocument(new WorkflowDocument(), "A");
+        var tempA = Path.Combine(Path.GetTempPath(), $"ws-recent-a-{Guid.NewGuid():N}.workflow.json");
+        var tempB = Path.Combine(Path.GetTempPath(), $"ws-recent-b-{Guid.NewGuid():N}.workflow.json");
+
+        try
+        {
+            await workspace.SaveActiveDocumentAsync(tempA);
+            Assert.Equal(tempA, workspace.RecentFiles[0].Path);
+
+            await workspace.OpenDocumentAsync(tempA);
+            await workspace.SaveActiveDocumentAsync(tempB);
+
+            Assert.Equal(tempB, workspace.RecentFiles[0].Path);
+            Assert.Single(workspace.RecentFiles, item => item.Path == tempA);
+        }
+        finally
+        {
+            foreach (var path in new[] { tempA, tempB })
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+    }
+
     private sealed class MinimalDefinition : INodeDefinition
     {
         public IReadOnlyList<NodePortDefinition> InputPorts => [];

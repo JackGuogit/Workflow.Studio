@@ -20,14 +20,31 @@ public partial class NodeSettingsEditorWindow : Window
 
         foreach (var field in editor.GetSettingsSchema(node.NodeTypeId))
         {
-            var textBox = new TextBox
+            var current = node.Settings.TryGetValue(field.Key, out var value) ? Convert.ToString(value) ?? string.Empty : string.Empty;
+            FrameworkElement input = field.EditorKind switch
             {
-                Text = node.Settings.TryGetValue(field.Key, out var value) ? Convert.ToString(value) ?? string.Empty : string.Empty,
-                Margin = new Thickness(0, 2, 0, 6),
-                Width = 220
+                "bool" => new CheckBox
+                {
+                    IsChecked = bool.TryParse(current, out var flag) && flag,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                "enum" when field.Options is { Count: > 0 } => new ComboBox
+                {
+                    ItemsSource = field.Options,
+                    SelectedItem = field.Options.FirstOrDefault(option =>
+                        string.Equals(option, current, StringComparison.OrdinalIgnoreCase)) ?? field.Options[0],
+                    Width = 140,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                _ => new TextBox
+                {
+                    Text = current,
+                    Margin = new Thickness(0, 2, 0, 6),
+                    Width = 220
+                }
             };
 
-            var row = new SettingRow(field, textBox);
+            var row = new SettingRow(field, input);
             _rows.Add(row);
 
             FieldList.Items.Add(new StackPanel
@@ -42,7 +59,7 @@ public partial class NodeSettingsEditorWindow : Window
                         VerticalAlignment = VerticalAlignment.Center,
                         Width = 110
                     },
-                    textBox
+                    input
                 }
             });
         }
@@ -57,12 +74,32 @@ public partial class NodeSettingsEditorWindow : Window
     {
         foreach (var row in _rows)
         {
-            _node.Settings[row.Field.Key] = row.TextBox.Text;
+            var text = row.Input switch
+            {
+                CheckBox checkBox => checkBox.IsChecked == true ? "true" : "false",
+                ComboBox comboBox => comboBox.SelectedItem as string ?? string.Empty,
+                TextBox textBox => textBox.Text,
+                _ => string.Empty
+            };
+
+            if (row.Field.EditorKind == "number")
+            {
+                if (!double.TryParse(text, out _))
+                {
+                    System.Windows.MessageBox.Show(this, $"字段 '{row.Field.DisplayName}' 必须是数字。", "设置无效", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(text) || _node.Settings.ContainsKey(row.Field.Key))
+            {
+                _node.Settings[row.Field.Key] = text;
+            }
         }
 
         _editor.NotifyNodeSettingsSaved(_node.NodeId);
         Close();
     }
 
-    private sealed record SettingRow(NodeSettingField Field, TextBox TextBox);
+    private sealed record SettingRow(NodeSettingField Field, FrameworkElement Input);
 }

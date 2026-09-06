@@ -12,6 +12,7 @@ using CommunityToolkit.Mvvm.Input;
 using Workflow.Studio.Core.Catalog;
 using Workflow.Studio.Core.Documents;
 using Workflow.Studio.Core.Session;
+using Workflow.Studio.Nodify;
 
 namespace Workflow.Studio.Workbench.Editor;
 
@@ -65,7 +66,16 @@ public sealed class PortViewModel : ObservableObject
 
     public string ValuePreview
     {
-        get => Slot.HasValue ? "(有值)" : string.Empty;
+        get
+        {
+            if (!Slot.HasValue)
+            {
+                return string.Empty;
+            }
+
+            var text = Slot.DisplayValue is null ? "(null)" : Convert.ToString(Slot.DisplayValue) ?? string.Empty;
+            return text.Length > 80 ? $"{text[..80]}…" : text;
+        }
     }
 
     public void RefreshValue()
@@ -87,6 +97,7 @@ public sealed class NodeViewModel : ObservableObject
     private string _stateText = NodeState.NotConfigured.ToString();
     private string? _errorText;
     private bool _isSelected;
+    private Size _nodeSize = new(200, 150);
 
     public NodeViewModel(NodeDocument document, NodeRuntime runtime, NodeTypeDescriptor descriptor)
     {
@@ -200,6 +211,12 @@ public sealed class NodeViewModel : ObservableObject
 
     public NodeState State => Runtime.State;
 
+    public Size Size
+    {
+        get => _nodeSize;
+        set => SetProperty(ref _nodeSize, value);
+    }
+
     public bool IsSelected
     {
         get => _isSelected;
@@ -289,6 +306,7 @@ public sealed class NodeLibraryItemViewModel
     public NodeLibraryItemViewModel(NodeTypeDescriptor descriptor)
     {
         Descriptor = descriptor;
+        IsExternal = descriptor.IsExternal;
     }
 
     public NodeTypeDescriptor Descriptor { get; }
@@ -298,6 +316,8 @@ public sealed class NodeLibraryItemViewModel
     public string DisplayName => Descriptor.DisplayName;
 
     public string Category => Descriptor.Category;
+
+    public bool IsExternal { get; }
 }
 
 public sealed class EntryVariableViewModel : ObservableObject
@@ -354,6 +374,8 @@ public sealed partial class WorkflowEditorViewModel : ObservableObject
     private readonly HashSet<string> _selectedNodeIds = new(StringComparer.OrdinalIgnoreCase);
     private bool _suppressSelectionSync;
     private ObservableCollection<NodeViewModel> _selectedNodes = [];
+    private readonly SemaphoreSlim _executionGate = new(1, 1);
+    private bool _isBusy;
     private readonly Stack<WorkflowDocument> _undoStack = new();
     private readonly Stack<WorkflowDocument> _redoStack = new();
     private TaskCompletionSource<bool>? _pauseSignal;
@@ -387,7 +409,7 @@ public sealed partial class WorkflowEditorViewModel : ObservableObject
         PendingConnection = new PendingConnectionViewModel(this);
         _selectedNodes.CollectionChanged += OnSelectedNodesCollectionChanged;
 
-        ExecuteAllCommand = new AsyncRelayCommand(ExecuteAllAsync);
+        ExecuteAllCommand = new AsyncRelayCommand(ExecuteAllAsync, () => !IsBusy);
         AddNodeCommand = new RelayCommand<string>(typeId =>
             AddNode(typeId!, GetDefaultX(), GetDefaultY()));
         ResetCommand = new RelayCommand(Reset);
@@ -410,10 +432,24 @@ public sealed partial class WorkflowEditorViewModel : ObservableObject
 
     public WorkflowSession Session => _session;
 
+    public object EditorGestures { get; } = NodifyGestures.CreateDefault();
+
     public string StatusMessage
     {
         get => _statusMessage;
         private set => SetProperty(ref _statusMessage, value);
+    }
+
+    public bool IsBusy
+    {
+        get => _isBusy;
+        private set
+        {
+            if (SetProperty(ref _isBusy, value))
+            {
+                ExecuteAllCommand.NotifyCanExecuteChanged();
+            }
+        }
     }
 
     public string Title
@@ -929,6 +965,13 @@ public sealed partial class WorkflowEditorViewModel : ObservableObject
             throw new InvalidOperationException(error);
         }
 
+        var declaration = Document.VariableDeclarations.FirstOrDefault(candidate =>
+            string.Equals(candidate.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (declaration is not null)
+        {
+            declaration.DefaultValue = converted;
+        }
+
         _session.SetEntryVariable(name, converted);
         RefreshEntryVariables();
         RefreshNodeStates();
@@ -936,6 +979,13 @@ public sealed partial class WorkflowEditorViewModel : ObservableObject
 
     public async Task<WorkflowExecutionResult> ExecuteAllAsync()
     {
+        if (!await _executionGate.WaitAsync(0))
+        {
+            StatusMessage = "已有执行在进行中。";
+            return new WorkflowExecutionResult(false, [], [], [], []);
+        }
+
+        IsBusy = true;
         var executor = new WorkflowExecutor(_session, _maxConcurrency, BreakpointGateAsync);
 
         try
@@ -951,6 +1001,8 @@ public sealed partial class WorkflowEditorViewModel : ObservableObject
             IsPaused = false;
             PausedNodeName = null;
             _pauseSignal = null;
+            IsBusy = false;
+            _executionGate.Release();
         }
     }
 
@@ -958,12 +1010,40 @@ public sealed partial class WorkflowEditorViewModel : ObservableObject
     {
         var signal = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         _pauseSignal = signal;
-        PausedNodeName = node.NodeId;
-        IsPaused = true;
-        StatusMessage = $"断点暂停于 '{node.NodeId}'，点击继续执行恢复。";
+
+        void PauseUi()
+        {
+            PausedNodeName = node.NodeId;
+            IsPaused = true;
+            StatusMessage = $"断点暂停于 '{node.NodeId}'，点击继续执行恢复。";
+            CenterViewportOnNode(node.NodeId);
+        }
+
+        if (_synchronizationContext is null)
+        {
+            PauseUi();
+        }
+        else
+        {
+            _synchronizationContext.Post(_ => PauseUi(), null);
+        }
 
         using var registration = cancellationToken.Register(() => signal.TrySetCanceled(cancellationToken));
         await signal.Task;
+    }
+
+    private void CenterViewportOnNode(string nodeId)
+    {
+        var node = Nodes.FirstOrDefault(candidate => string.Equals(candidate.NodeId, nodeId, StringComparison.OrdinalIgnoreCase));
+        if (node is null)
+        {
+            return;
+        }
+
+        var zoom = Math.Max(ViewportZoom, 0.2);
+        ViewportLocation = new Point(
+            Math.Max(0, node.X + 100 - ViewportSize.Width / (2 * zoom)),
+            Math.Max(0, node.Y + 75 - ViewportSize.Height / (2 * zoom)));
     }
 
     private void Resume()
@@ -1307,7 +1387,20 @@ public sealed partial class WorkflowEditorViewModel : ObservableObject
             var value = _session.DeclaredVariableValues.TryGetValue(declaration.Name, out var current)
                 ? current
                 : declaration.DefaultValue;
-            EntryVariables.Add(new EntryVariableViewModel(declaration, value));
+            var entry = new EntryVariableViewModel(declaration, value);
+            entry.ValueChanged += (_, newValue) =>
+            {
+                try
+                {
+                    SetEntryVariable(entry.Name, newValue);
+                }
+                catch (Exception ex)
+                {
+                    StatusMessage = $"更新入口变量失败: {ex.Message}";
+                    RefreshEntryVariables();
+                }
+            };
+            EntryVariables.Add(entry);
         }
     }
 

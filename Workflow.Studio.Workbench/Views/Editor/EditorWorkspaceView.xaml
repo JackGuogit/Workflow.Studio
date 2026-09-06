@@ -14,6 +14,43 @@
                 <Button Content="关闭当前文档" Command="{Binding CloseActiveDocumentCommand}" Padding="10,3" Margin="8,0,0,0" />
                 <Button Content="保存当前文档" Command="{Binding SaveActiveDocumentCommand}" Padding="10,3" Margin="8,0,0,0" />
                 <Button Content="打开文档" Command="{Binding OpenDocumentCommand}" Padding="10,3" Margin="8,0,0,0" />
+                <TextBlock Text="插件" VerticalAlignment="Center" Margin="12,0,4,0"
+                           Foreground="{DynamicResource WorkflowWorkbench.TextBrush}" />
+                <ComboBox ItemsSource="{Binding PluginSummaries}" Width="220"
+                          SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"
+                          VerticalAlignment="Center"
+                          ToolTip="已注册能力插件（与节点库相互独立）">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" />
+                                <TextBlock Text="{Binding Capabilities}" FontSize="10"
+                                           Foreground="{DynamicResource WorkflowWorkbench.SubtleTextBrush}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap" MaxWidth="360">
+                    <Run Text="{Binding SelectedPlugin.Name, Mode=OneWay}" FontWeight="SemiBold" />
+                    <Run Text=" · " />
+                    <Run Text="{Binding SelectedPlugin.Id, Mode=OneWay}" />
+                    <Run Text="{Binding SelectedPlugin.Version, Mode=OneWay, StringFormat= v{0}}" />
+                    <LineBreak />
+                    <Run Text="能力: " />
+                    <Run Text="{Binding SelectedPlugin.Capabilities, Mode=OneWay}" />
+                    <Run Text="  关联节点: " />
+                    <Run Text="{Binding SelectedPlugin.RelatedNodes, Mode=OneWay}" />
+                </TextBlock>
+                <Button Content="卸载" Command="{Binding UnloadSelectedPluginCommand}" Padding="8,3" Margin="8,0,0,0" />
+                <Button Content="重载" Command="{Binding ReloadSelectedPluginCommand}" Padding="8,3" Margin="4,0,0,0" />
+                <ComboBox x:Name="RecentCombo"
+                          ItemsSource="{Binding RecentFiles}"
+                          DisplayMemberPath="Name"
+                          Width="200"
+                          Margin="8,0,0,0"
+                          VerticalAlignment="Center"
+                          SelectionChanged="OnRecentSelectionChanged"
+                          ToolTip="最近打开的工作流" />
             </StackPanel>
         </Border>
 

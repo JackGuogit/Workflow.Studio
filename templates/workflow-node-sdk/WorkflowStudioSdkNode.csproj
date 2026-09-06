@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- 根据实际仓库位置调整相对路径 -->
+    <ProjectReference Include="..\Workflow.Studio.Core\Workflow.Studio.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="smoke\**" />
+  </ItemGroup>
+</Project>

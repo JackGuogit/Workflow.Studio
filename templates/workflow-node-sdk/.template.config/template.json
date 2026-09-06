@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Workflow Studio",
+  "classifications": [ "Workflow", "Node", "SDK" ],
+  "identity": "Workflow.Studio.SdkNode.Template",
+  "name": "Workflow Studio Node SDK",
+  "shortName": "workflow-node",
+  "tags": { "language": "C#", "type": "project" },
+  "sourceName": "WorkflowStudioSdkNode",
+  "preferNameDirectory": true,
+  "sources": [
+    {
+      "modifiers": [
+        { "exclude": [ "bin/**", "obj/**", "smoke/bin/**", "smoke/obj/**" ] }
+      ]
+    }
+  ]
+}

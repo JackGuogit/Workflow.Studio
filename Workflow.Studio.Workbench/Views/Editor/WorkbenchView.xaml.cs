@@ -79,4 +79,35 @@ public partial class WorkbenchView : UserControl
 
         window.ShowDialog();
     }
+
+    private void OnLibraryNodeMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: NodeLibraryItemViewModel item } && e.LeftButton == MouseButtonState.Pressed)
+        {
+            var data = new DataObject("WorkflowNodeType", item.TypeId);
+            DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Copy);
+            e.Handled = true;
+        }
+    }
+
+    private void OnEditorDragOver(object sender, DragEventArgs e)
+    {
+        e.Effects = e.Data.GetDataPresent("WorkflowNodeType") ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void OnEditorDrop(object sender, DragEventArgs e)
+    {
+        if (_editor is null
+            || !e.Data.GetDataPresent("WorkflowNodeType")
+            || e.Data.GetData("WorkflowNodeType") is not string typeId
+            || Editor.ViewportTransform?.Inverse is not { } inverse)
+        {
+            return;
+        }
+
+        var world = inverse.Transform(e.GetPosition(Editor));
+        _editor.AddNode(typeId, world.X, world.Y);
+        e.Handled = true;
+    }
 }

@@ -34,6 +34,11 @@ public sealed class WorkflowDefinitionRegistry
         }
     }
 
+    public bool Remove(string typeId)
+    {
+        return _entries.Remove(typeId);
+    }
+
     public INodeDefinition? TryResolve(string typeId)
     {
         return _entries.TryGetValue(typeId, out var entry) ? entry.Definition : null;
@@ -57,7 +62,11 @@ public sealed class WorkflowDefinitionRegistry
             .Select(item => new NodeSettingField(
                 item.Property.Name,
                 item.Attribute!.DisplayName,
-                item.Attribute.EditorKind))
+                item.Attribute.EditorKind,
+                item.Attribute.EditorKind == "enum"
+                    && item.Attribute.EditorOptionsType is { IsEnum: true } enumType
+                    ? Enum.GetNames(enumType)
+                    : null))
             .ToList();
     }
 
@@ -78,10 +87,18 @@ public sealed record NodeTypeDescriptor(
     string Category = "",
     string Description = "",
     string? SettingsViewTypeName = null,
-    IReadOnlyList<NodeSettingField>? SettingsFields = null)
+    IReadOnlyList<NodeSettingField>? SettingsFields = null,
+    bool IsExternal = false,
+    IReadOnlyList<string>? RequiredCapabilities = null)
 {
     public IReadOnlyList<NodeSettingField> SettingsFields { get; init; } = SettingsFields ?? [];
+
+    public IReadOnlyList<string> RequiredCapabilities { get; init; } = RequiredCapabilities ?? [];
 }
 
 /// <summary>节点设置字段元数据（M8 property-tool 的前置契约）。</summary>
-public sealed record NodeSettingField(string Key, string DisplayName, string? EditorKind = null);
+public sealed record NodeSettingField(
+    string Key,
+    string DisplayName,
+    string? EditorKind = null,
+    IReadOnlyList<string>? Options = null);
